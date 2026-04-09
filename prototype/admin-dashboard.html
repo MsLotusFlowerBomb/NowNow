@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard – NowNow Prototype</title>
+    <link rel="stylesheet" href="css/prototype.css">
+    <style>
+        .form-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:2rem;margin-bottom:2rem}
+        .form-card h2{margin-bottom:1.2rem}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    </style>
+</head>
+<body>
+<div class="prototype-banner">⚡ Interactive Prototype – No server required</div>
+
+<nav class="navbar">
+    <a href="index.html" class="nav-brand">🚀 NowNow</a>
+    <div class="nav-links">
+        <a href="track.html">Track Package</a>
+        <a href="admin-dashboard.html" class="active">Admin</a>
+        <span class="nav-user">👤 Alice Admin</span>
+        <a href="login.html" class="btn btn-sm btn-outline">Logout</a>
+    </div>
+</nav>
+
+<main class="page-main">
+    <h1 style="font-size:1.8rem;font-weight:700;margin-bottom:1.5rem">⚙️ Admin Dashboard</h1>
+
+    <div class="alert alert-success" id="assignedAlert" style="display:none">
+        Package successfully assigned to driver.
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <span class="stat-card-number">5</span>
+            <span class="stat-card-label">Total Packages</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-card-number" id="pendingCount">2</span>
+            <span class="stat-card-label">Pending Assignment</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-card-number">2</span>
+            <span class="stat-card-label">Registered Drivers</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-card-number" id="availCount">1</span>
+            <span class="stat-card-label">Available Drivers</span>
+        </div>
+    </div>
+
+    <!-- Assign Package -->
+    <div class="form-card">
+        <h2>📋 Assign a Package to a Driver</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="packageSel">Pending Package</label>
+                <select id="packageSel">
+                    <option value="">-- Select Package --</option>
+                    <option value="NN-20240003">NN-20240003 → Legal Dept (5 Times Sq)</option>
+                    <option value="NN-20240005">NN-20240005 → Mary Johnson (800 Lexington)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="driverSel">Available Driver</label>
+                <select id="driverSel">
+                    <option value="">-- Select Driver --</option>
+                    <option value="1">Dan Deliverer (MOTORBIKE, ★ 4.85)</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="assignPackage()">Assign Driver</button>
+    </div>
+
+    <!-- All Packages -->
+    <section class="table-section">
+        <h2>All Packages</h2>
+        <div class="table-wrapper">
+            <table class="data-table" id="packagesTable">
+                <thead>
+                    <tr>
+                        <th>Tracking #</th>
+                        <th>Sender</th>
+                        <th>Recipient</th>
+                        <th>Destination</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Track</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>NN-20240001</code></td>
+                        <td>Carol Customer</td>
+                        <td>Bob Recipient</td>
+                        <td>55 Park Ave, NY</td>
+                        <td><span class="badge badge-delivered">DELIVERED</span></td>
+                        <td>10 Mar 2024</td>
+                        <td><a href="track.html?number=NN-20240001" class="btn btn-sm">Track</a></td>
+                    </tr>
+                    <tr>
+                        <td><code>NN-20240002</code></td>
+                        <td>Carol Customer</td>
+                        <td>Sara Smith</td>
+                        <td>120 Wall St, NY</td>
+                        <td><span class="badge badge-in_transit">IN TRANSIT</span></td>
+                        <td>12 Mar 2024</td>
+                        <td><a href="track.html?number=NN-20240002" class="btn btn-sm">Track</a></td>
+                    </tr>
+                    <tr id="row-NN-20240003">
+                        <td><code>NN-20240003</code></td>
+                        <td>Frank Fast</td>
+                        <td>Legal Dept</td>
+                        <td>5 Times Sq, NY</td>
+                        <td><span class="badge badge-pending" id="badge-NN-20240003">PENDING</span></td>
+                        <td>13 Mar 2024</td>
+                        <td><a href="track.html?number=NN-20240003" class="btn btn-sm">Track</a></td>
+                    </tr>
+                    <tr>
+                        <td><code>NN-20240004</code></td>
+                        <td>Frank Fast</td>
+                        <td>Tech Dept</td>
+                        <td>230 5th Ave, NY</td>
+                        <td><span class="badge badge-assigned">ASSIGNED</span></td>
+                        <td>13 Mar 2024</td>
+                        <td><a href="track.html?number=NN-20240004" class="btn btn-sm">Track</a></td>
+                    </tr>
+                    <tr id="row-NN-20240005">
+                        <td><code>NN-20240005</code></td>
+                        <td>Carol Customer</td>
+                        <td>Mary Johnson</td>
+                        <td>800 Lexington Ave, NY</td>
+                        <td><span class="badge badge-pending" id="badge-NN-20240005">PENDING</span></td>
+                        <td>13 Mar 2024</td>
+                        <td><a href="track.html?number=NN-20240005" class="btn btn-sm">Track</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- All Drivers -->
+    <section class="table-section">
+        <h2>All Drivers</h2>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Vehicle</th>
+                        <th>Status</th>
+                        <th>Rating</th>
+                        <th>Deliveries</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Dan Deliverer</td>
+                        <td>MOTORBIKE</td>
+                        <td><span class="badge badge-available" id="danStatus">AVAILABLE</span></td>
+                        <td>4.85 ★</td>
+                        <td>127</td>
+                    </tr>
+                    <tr>
+                        <td>Eve Express</td>
+                        <td>CAR</td>
+                        <td><span class="badge badge-offline">OFFLINE</span></td>
+                        <td>4.92 ★</td>
+                        <td>89</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer class="footer"><p>🚀 NowNow Courier – Interactive Prototype</p></footer>
+<script src="js/prototype.js"></script>
+<script>
+    initPage('admin-dashboard');
+
+    if (new URLSearchParams(location.search).get('assigned')) {
+        document.getElementById('assignedAlert').style.display = 'block';
+    }
+
+    var assignedCount = 0;
+
+    function assignPackage() {
+        var pkgSel = document.getElementById('packageSel');
+        var drvSel = document.getElementById('driverSel');
+        var tn = pkgSel.value;
+
+        if (!tn || !drvSel.value) {
+            alert('Please select both a package and a driver.');
+            return;
+        }
+
+        // Update badge
+        var badge = document.getElementById('badge-' + tn);
+        if (badge) {
+            badge.textContent = 'ASSIGNED';
+            badge.className   = 'badge badge-assigned';
+        }
+
+        // Remove from dropdown
+        pkgSel.querySelector('option[value="' + tn + '"]').remove();
+
+        // Update stats
+        assignedCount++;
+        document.getElementById('pendingCount').textContent =
+            Math.max(0, parseInt(document.getElementById('pendingCount').textContent) - 1);
+        document.getElementById('availCount').textContent =
+            Math.max(0, parseInt(document.getElementById('availCount').textContent) - 1);
+
+        // Update driver status
+        document.getElementById('danStatus').textContent = 'ON DELIVERY';
+        document.getElementById('danStatus').className   = 'badge badge-assigned';
+
+        // Remove Dan from driver dropdown
+        var danOpt = drvSel.querySelector('option[value="1"]');
+        if (danOpt) danOpt.remove();
+
+        document.getElementById('assignedAlert').style.display = 'block';
+        pkgSel.value = '';
+        drvSel.value = '';
+    }
+</script>
+</body>
+</html>

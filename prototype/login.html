@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – NowNow Prototype</title>
+    <link rel="stylesheet" href="css/prototype.css">
+    <style>
+        .auth-page{background:linear-gradient(135deg,#fff5f0 0%,#f0f4ff 100%)}
+        .auth-container{display:flex;justify-content:center;align-items:center;padding:3rem 1rem;flex:1}
+        .auth-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:2.5rem;width:100%;max-width:440px}
+        .auth-header{text-align:center;margin-bottom:2rem}
+        .auth-header h1{font-size:1.8rem;font-weight:800}
+        .auth-header p{color:var(--muted);margin-top:.4rem}
+        .auth-footer-text{text-align:center;margin-top:1.2rem;font-size:.9rem;color:var(--muted)}
+        .auth-form{display:flex;flex-direction:column}
+    </style>
+</head>
+<body class="auth-page">
+<div class="prototype-banner">⚡ Interactive Prototype – No server required</div>
+
+<nav class="navbar">
+    <a href="index.html" class="nav-brand">🚀 NowNow</a>
+    <div class="nav-links">
+        <a href="track.html">Track Package</a>
+        <a href="register.html" class="btn btn-sm btn-primary">Sign Up</a>
+    </div>
+</nav>
+
+<main class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>🚀 Welcome Back</h1>
+            <p>Sign in to your NowNow account</p>
+        </div>
+
+        <div class="alert alert-success" id="demoHint">
+            <strong>Demo Accounts:</strong><br>
+            Customer: carol@example.com / Password1!<br>
+            Driver: dan@nownow.com / Password1!<br>
+            Admin: admin@nownow.com / Password1!
+        </div>
+
+        <form id="loginForm" class="auth-form" novalidate>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email"
+                       placeholder="you@example.com" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password"
+                       placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <div id="loginError" class="alert alert-error" style="display:none"></div>
+            <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+        </form>
+
+        <p class="auth-footer-text">
+            Don't have an account? <a href="register.html">Create one</a>
+        </p>
+        <p class="auth-footer-text">
+            <a href="track.html">Track a package without logging in</a>
+        </p>
+    </div>
+</main>
+
+<footer class="footer">
+    <p>🚀 NowNow Courier – Interactive Prototype</p>
+</footer>
+<script src="js/prototype.js"></script>
+<script>
+    initPage('login');
+
+    // Prototype login – redirect based on email
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var email = document.getElementById('email').value.trim().toLowerCase();
+        var errDiv = document.getElementById('loginError');
+
+        var routes = {
+            'admin@nownow.com':    'admin-dashboard.html',
+            'dan@nownow.com':      'driver-dashboard.html',
+            'eve@nownow.com':      'driver-dashboard.html',
+            'carol@example.com':   'customer-dashboard.html',
+            'frank@example.com':   'customer-dashboard.html',
+        };
+
+        if (routes[email]) {
+            window.location.href = routes[email];
+        } else {
+            errDiv.style.display = 'block';
+            errDiv.textContent   = 'Invalid email or password. Try a demo account above.';
+        }
+    });
+</script>
+</body>
+</html>

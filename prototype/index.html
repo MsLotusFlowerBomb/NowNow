@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NowNow – Fast Package Delivery</title>
+    <link rel="stylesheet" href="css/prototype.css">
+    <style>
+        /* Hero */
+        .hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:3rem;max-width:1200px;margin:0 auto;padding:5rem 2rem}
+        .hero h1{font-size:3rem;font-weight:800;line-height:1.15;color:var(--secondary)}
+        .highlight{color:var(--primary)}
+        .hero-sub{margin:1.2rem 0 2rem;font-size:1.15rem;color:var(--muted);max-width:460px}
+        .hero-actions{display:flex;gap:1rem;flex-wrap:wrap}
+        .delivery-animation{display:flex;align-items:center;justify-content:center;gap:1rem;font-size:3rem;background:linear-gradient(135deg,#fff5f0,#fff);border-radius:20px;padding:3rem;box-shadow:var(--shadow);animation:float 3s ease-in-out infinite}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+        /* Features */
+        .features{background:var(--surface);padding:5rem 2rem;text-align:center}
+        .section-title{font-size:2rem;font-weight:700;margin-bottom:3rem;color:var(--secondary)}
+        .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;max-width:1200px;margin:0 auto}
+        .feature-card{background:var(--bg);border-radius:var(--radius);padding:2rem;transition:box-shadow .25s,transform .25s}
+        .feature-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.14);transform:translateY(-4px)}
+        .feature-icon{font-size:2.5rem;margin-bottom:1rem}
+        .feature-card h3{font-size:1.1rem;font-weight:700;margin-bottom:.6rem;color:var(--secondary)}
+        /* Stats bar */
+        .stats-bar{background:var(--primary);color:#fff;display:flex;justify-content:center;gap:4rem;padding:3rem 2rem;flex-wrap:wrap}
+        .stat{text-align:center}
+        .stat-number{display:block;font-size:2.2rem;font-weight:800}
+        .stat-label{font-size:.9rem;opacity:.85}
+        /* CTA */
+        .cta-section{text-align:center;padding:5rem 2rem;background:var(--secondary);color:#fff}
+        .cta-section h2{font-size:2rem;margin-bottom:1.5rem}
+        .cta-section p{margin-top:1.2rem}
+        .cta-section a{color:#FFD700}
+    </style>
+</head>
+<body>
+<div class="prototype-banner">⚡ Interactive Prototype – No server required</div>
+
+<nav class="navbar">
+    <a href="index.html" class="nav-brand">🚀 NowNow</a>
+    <div class="nav-links">
+        <a href="track.html">Track Package</a>
+        <a href="login.html">Login</a>
+        <a href="register.html" class="btn btn-sm btn-primary">Sign Up</a>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>Deliver Anything, <span class="highlight">Anywhere</span></h1>
+        <p class="hero-sub">NowNow connects senders with nearby drivers for same-day package delivery.</p>
+        <div class="hero-actions">
+            <a href="register.html" class="btn btn-primary btn-lg">Get Started</a>
+            <a href="track.html"    class="btn btn-outline btn-lg">Track a Package</a>
+        </div>
+    </div>
+    <div class="hero-illustration">
+        <div class="delivery-animation">
+            <span>📦</span><span>➡️</span><span>🏍️</span><span>➡️</span><span>🏠</span>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <h2 class="section-title">How It Works</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <h3>1. Send a Package</h3>
+            <p>Log in as a customer, fill in pickup and delivery details, and submit your request.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <h3>2. Driver Assigned</h3>
+            <p>Admin matches your package with the nearest available driver instantly.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📍</div>
+            <h3>3. Real-time Tracking</h3>
+            <p>Track your package at every step using your unique tracking number.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">✅</div>
+            <h3>4. Delivered!</h3>
+            <p>Your package arrives safely. Rate your delivery experience.</p>
+        </div>
+    </div>
+</section>
+
+<section class="stats-bar">
+    <div class="stat"><span class="stat-number">5,000+</span><span class="stat-label">Deliveries Made</span></div>
+    <div class="stat"><span class="stat-number">200+</span><span class="stat-label">Active Drivers</span></div>
+    <div class="stat"><span class="stat-number">98%</span><span class="stat-label">On-time Rate</span></div>
+    <div class="stat"><span class="stat-number">4.9 ★</span><span class="stat-label">Average Rating</span></div>
+</section>
+
+<section class="cta-section">
+    <h2>Ready to ship your first package?</h2>
+    <a href="register.html" class="btn btn-primary btn-lg">Create an Account</a>
+    <p>Already have an account? <a href="login.html">Sign in</a></p>
+</section>
+
+<footer class="footer">
+    <p>🚀 NowNow Courier &mdash; University CS Project &mdash; Interactive Prototype</p>
+</footer>
+<script src="js/prototype.js"></script>
+<script>initPage('home');</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send a Package – NowNow Prototype</title>
+    <link rel="stylesheet" href="css/prototype.css">
+    <style>
+        .form-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:2rem;max-width:700px;margin:0 auto}
+        .form-section-title{font-size:1rem;font-weight:700;color:var(--muted);margin:1.5rem 0 .8rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+        .price-estimate{background:linear-gradient(135deg,#fff5f0,#fff);border:1.5px solid var(--primary);border-radius:var(--radius-sm);padding:.8rem 1.2rem;font-size:1rem;margin:1rem 0}
+        .price-note{font-size:.8rem;color:var(--muted);margin-left:.5rem}
+        .form-actions{display:flex;gap:1rem;margin-top:1.5rem}
+        .page-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+    </style>
+</head>
+<body>
+<div class="prototype-banner">⚡ Interactive Prototype – No server required</div>
+
+<nav class="navbar">
+    <a href="index.html" class="nav-brand">🚀 NowNow</a>
+    <div class="nav-links">
+        <a href="customer-dashboard.html">Dashboard</a>
+        <span class="nav-user">👤 Carol Customer</span>
+        <a href="login.html" class="btn btn-sm btn-outline">Logout</a>
+    </div>
+</nav>
+
+<main class="page-main">
+    <div class="page-header-row">
+        <h1>📦 Send a Package</h1>
+        <a href="customer-dashboard.html" class="btn btn-outline">← Back to Dashboard</a>
+    </div>
+
+    <div class="form-card">
+        <form id="newPackageForm" novalidate>
+            <h2 class="form-section-title">📍 Pickup &amp; Delivery</h2>
+
+            <div class="form-group">
+                <label for="pickupAddress">Pickup Address *</label>
+                <input type="text" id="pickupAddress"
+                       placeholder="123 Main Street, New York, NY 10001">
+            </div>
+            <div class="form-group">
+                <label for="deliveryAddress">Delivery Address *</label>
+                <input type="text" id="deliveryAddress"
+                       placeholder="456 Park Avenue, New York, NY 10022">
+            </div>
+
+            <h2 class="form-section-title">👤 Recipient</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="recipientName">Recipient Full Name *</label>
+                    <input type="text" id="recipientName" placeholder="Jane Smith">
+                </div>
+                <div class="form-group">
+                    <label for="recipientPhone">Recipient Phone</label>
+                    <input type="tel" id="recipientPhone" placeholder="+1 555-0199">
+                </div>
+            </div>
+
+            <h2 class="form-section-title">📋 Package Details</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description"
+                           placeholder="e.g. Laptop bag, Birthday gift...">
+                </div>
+                <div class="form-group">
+                    <label for="weight">Estimated Weight (kg)</label>
+                    <input type="number" id="weight" min="0.1" step="0.1" placeholder="1.5"
+                           oninput="updatePrice()">
+                </div>
+            </div>
+
+            <div class="price-estimate">
+                Estimated price: <strong id="priceDisplay">$5.00</strong>
+                <span class="price-note">(Base $5.00 + $3.50/kg)</span>
+            </div>
+
+            <div id="formError" class="alert alert-error" style="display:none"></div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">Submit Package Request</button>
+                <a href="customer-dashboard.html" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer class="footer"><p>🚀 NowNow Courier – Interactive Prototype</p></footer>
+<script src="js/prototype.js"></script>
+<script>
+    function updatePrice() {
+        var kg = parseFloat(document.getElementById('weight').value) || 0;
+        document.getElementById('priceDisplay').textContent = '$' + (5 + kg * 3.5).toFixed(2);
+    }
+
+    document.getElementById('newPackageForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var pickup   = document.getElementById('pickupAddress').value.trim();
+        var delivery = document.getElementById('deliveryAddress').value.trim();
+        var recipient = document.getElementById('recipientName').value.trim();
+        var errDiv   = document.getElementById('formError');
+
+        if (!pickup || !delivery || !recipient) {
+            errDiv.textContent = 'Pickup address, delivery address, and recipient name are required.';
+            errDiv.style.display = 'block';
+            return;
+        }
+
+        // Generate a fake tracking number and redirect to dashboard
+        var tracking = 'NN-' + new Date().toISOString().slice(0,10).replace(/-/g,'')
+                     + '-' + Math.random().toString(16).slice(2,10).toUpperCase();
+        window.location.href = 'customer-dashboard.html?created=' + tracking;
+    });
+</script>
+</body>
+</html>

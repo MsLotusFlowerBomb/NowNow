@@ -1,0 +1,109 @@
+/* ============================================================
+   NowNow Courier – Prototype Shared Styles
+   ============================================================ */
+:root {
+    --primary:      #FF6B35;
+    --primary-dark: #e55c28;
+    --secondary:    #2C3E50;
+    --accent:       #27AE60;
+    --danger:       #E74C3C;
+    --bg:           #F8F9FA;
+    --surface:      #FFFFFF;
+    --border:       #E0E0E0;
+    --text:         #2C3E50;
+    --muted:        #6C757D;
+    --radius:       12px;
+    --radius-sm:    6px;
+    --shadow:       0 4px 20px rgba(0,0,0,0.08);
+    --transition:   0.25s ease;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Navbar */
+.navbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.nav-brand{font-size:1.4rem;font-weight:800;color:var(--secondary);display:flex;align-items:center;gap:.4rem;text-decoration:none}
+.nav-links{display:flex;align-items:center;gap:1.5rem;font-weight:500}
+.nav-links a{color:var(--secondary);font-size:.95rem}
+.nav-links a:hover,.nav-links a.active{color:var(--primary);text-decoration:none}
+.nav-user{color:var(--muted);font-size:.9rem}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.2rem;border-radius:var(--radius-sm);font-size:.9rem;font-weight:600;cursor:pointer;border:2px solid transparent;transition:background var(--transition),transform var(--transition);text-decoration:none;white-space:nowrap;font-family:inherit}
+.btn:hover{transform:translateY(-1px);text-decoration:none}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-primary:hover{background:var(--primary-dark);border-color:var(--primary-dark)}
+.btn-outline{background:transparent;color:var(--primary);border-color:var(--primary)}
+.btn-outline:hover{background:var(--primary);color:#fff}
+.btn-success{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-danger{background:var(--danger);color:#fff;border-color:var(--danger)}
+.btn-sm{padding:.35rem .8rem;font-size:.82rem}
+.btn-lg{padding:.75rem 1.8rem;font-size:1rem}
+.btn-full{width:100%;justify-content:center}
+
+/* Forms */
+.form-group{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1.2rem}
+.form-group label{font-weight:600;font-size:.9rem}
+.form-group input,.form-group select,.form-group textarea{padding:.65rem .9rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:.95rem;font-family:inherit;transition:border-color var(--transition)}
+.form-group input:focus,.form-group select:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(255,107,53,0.15)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+/* Alerts */
+.alert{padding:.9rem 1.2rem;border-radius:var(--radius-sm);margin-bottom:1.2rem;font-size:.92rem;font-weight:500}
+.alert-error{background:#fde8e8;color:#c0392b;border:1px solid #f5c6c6}
+.alert-success{background:#e8f8f0;color:#1e8449;border:1px solid #c3e6cb}
+
+/* Status badges */
+.badge{display:inline-block;padding:.25rem .65rem;border-radius:99px;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.badge-pending{background:#fff3cd;color:#856404}
+.badge-assigned{background:#d1ecf1;color:#0c5460}
+.badge-in_transit{background:#e2d9f3;color:#5b2d8e}
+.badge-delivered{background:#d4edda;color:#155724}
+.badge-available{background:#d4edda;color:#155724}
+.badge-offline{background:#e2e3e5;color:#383d41}
+
+/* Tables */
+.table-section{margin-top:2rem}
+.table-section h2{font-size:1.2rem;margin-bottom:1rem;font-weight:700}
+.table-wrapper{overflow-x:auto;border-radius:var(--radius);box-shadow:var(--shadow)}
+.data-table{width:100%;border-collapse:collapse;background:var(--surface)}
+.data-table th,.data-table td{padding:.9rem 1rem;text-align:left;font-size:.9rem;border-bottom:1px solid var(--border)}
+.data-table th{background:var(--secondary);color:#fff;font-weight:600}
+.data-table tbody tr:hover{background:rgba(255,107,53,0.04)}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--surface);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);text-align:center}
+.stat-card-number{display:block;font-size:2rem;font-weight:800;color:var(--primary)}
+.stat-card-label{font-size:.85rem;color:var(--muted);margin-top:.2rem}
+
+/* Footer */
+.footer{background:var(--secondary);color:rgba(255,255,255,.8);padding:2rem;margin-top:auto;text-align:center;font-size:.88rem}
+.footer a{color:var(--primary)}
+
+/* Page main */
+.page-main{flex:1;max-width:1200px;margin:0 auto;padding:2rem;width:100%}
+
+/* Dashboard header */
+.dashboard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+
+/* Empty state */
+.empty-state{text-align:center;padding:3rem;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow)}
+.empty-state p{color:var(--muted);margin-bottom:1.2rem}
+
+/* Prototype note banner */
+.prototype-banner{background:linear-gradient(90deg,#FF6B35,#e55c28);color:#fff;text-align:center;padding:.5rem 1rem;font-size:.88rem;font-weight:600;letter-spacing:.03em}
+
+/* Timeline */
+.timeline{position:relative;padding-left:1.5rem}
+.timeline::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:2px;background:var(--border)}
+.timeline-item{position:relative;padding-bottom:1.5rem;padding-left:1.2rem}
+.timeline-dot{position:absolute;left:-1.5rem;top:5px;width:14px;height:14px;border-radius:50%;background:var(--border);border:2px solid var(--surface)}
+.timeline-current .timeline-dot{background:var(--primary)}
+.timeline-status{font-weight:700;font-size:.88rem;text-transform:uppercase}
+.timeline-desc{font-size:.9rem;color:var(--muted);margin:.2rem 0}
+.timeline-time{font-size:.8rem;color:var(--muted)}
