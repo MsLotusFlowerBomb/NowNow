@@ -99,8 +99,8 @@ public class DriverDashboardServlet extends HttpServlet {
             // Update delivery status
             deliveryDAO.updateStatus(deliveryId, newDeliveryStatus);
 
-            // Update package status
-            Delivery delivery = deliveryDAO.findByPackageId(deliveryId).orElse(null);
+            // Fetch the delivery record to get the package ID
+            Delivery delivery = deliveryDAO.findById(deliveryId).orElse(null);
             if (delivery != null) {
                 packageDAO.updateStatus(delivery.getPackageId(), newPackageStatus);
 

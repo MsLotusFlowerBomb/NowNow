@@ -36,6 +36,23 @@ public class DeliveryDAO {
     // READ
     // -------------------------------------------------------
 
+    public Optional<Delivery> findById(int id) throws SQLException {
+        String sql = "SELECT d.*, u.full_name AS driver_name, p.tracking_number "
+                   + "FROM deliveries d "
+                   + "JOIN drivers dr ON dr.id = d.driver_id "
+                   + "JOIN users   u  ON u.id  = dr.user_id "
+                   + "JOIN packages p ON p.id  = d.package_id "
+                   + "WHERE d.id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return Optional.of(mapRow(rs));
+            }
+        }
+        return Optional.empty();
+    }
+
     public Optional<Delivery> findByPackageId(int packageId) throws SQLException {
         String sql = "SELECT d.*, u.full_name AS driver_name, p.tracking_number "
                    + "FROM deliveries d "

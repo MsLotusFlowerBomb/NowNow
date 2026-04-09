@@ -7,7 +7,7 @@ NowNow is a **3-tiered web application** that models an Uber-style courier packa
 | Tier | Technology |
 |------|------------|
 | **Tier 1 – Client** | HTML5, CSS3, JavaScript (vanilla, no framework) |
-| **Tier 2 – Application Server** | Java 11 Servlets + JSP (JavaServer Pages) on Apache Tomcat 10 |
+| **Tier 2 – Application Server** | Java 17 Servlets + JSP (JavaServer Pages) on Apache Tomcat 10 |
 | **Tier 3 – Database** | MySQL 8.x |
 
 ---
@@ -132,7 +132,7 @@ Browser                Tomcat / PackageServlet           MySQL
 
 ### Prerequisites
 
-- Java 11+ (JDK)
+- Java 17+ (JDK)
 - Apache Maven 3.8+
 - Apache Tomcat 10
 - MySQL 8.x
