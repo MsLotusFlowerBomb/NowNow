@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Package – NowNow Prototype</title>
+    <link rel="stylesheet" href="css/prototype.css">
+    <style>
+        .track-form{margin-bottom:2rem}
+        .track-input-group{display:flex;gap:.8rem;max-width:600px}
+        .track-input{flex:1;padding:.75rem 1rem;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:1rem;font-family:inherit}
+        .track-input:focus{outline:none;border-color:var(--primary)}
+        .tracking-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:2rem;max-width:700px}
+        .tracking-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
+        .tracking-header h2{font-size:1.3rem;font-family:monospace}
+        .tracking-sub{color:var(--muted);font-size:.9rem;margin-top:.3rem}
+        .tracking-addresses{display:flex;align-items:center;gap:1rem;background:var(--bg);border-radius:var(--radius-sm);padding:1rem;margin-bottom:2rem}
+        .address-item{flex:1}
+        .address-label{display:block;font-size:.78rem;font-weight:700;color:var(--muted)}
+        .address-arrow{font-size:1.2rem;color:var(--primary)}
+    </style>
+</head>
+<body>
+<div class="prototype-banner">⚡ Interactive Prototype – No server required</div>
+
+<nav class="navbar">
+    <a href="index.html" class="nav-brand">🚀 NowNow</a>
+    <div class="nav-links">
+        <a href="track.html" class="active">Track Package</a>
+        <a href="login.html">Login</a>
+        <a href="register.html" class="btn btn-sm btn-primary">Sign Up</a>
+    </div>
+</nav>
+
+<main class="page-main">
+    <h1 style="font-size:1.8rem;font-weight:700;margin-bottom:1.5rem">📍 Track Your Package</h1>
+
+    <div class="track-form">
+        <div class="track-input-group">
+            <input type="text" id="trackInput" class="track-input"
+                   placeholder="Enter tracking number  e.g. NN-20240002">
+            <button class="btn btn-primary" onclick="trackPackage()">Track</button>
+        </div>
+        <p style="margin-top:.5rem;font-size:.85rem;color:var(--muted)">
+            Try: NN-20240001 (Delivered) &nbsp;|&nbsp; NN-20240002 (In Transit) &nbsp;|&nbsp; NN-20240003 (Pending)
+        </p>
+    </div>
+
+    <div id="notFound" class="alert alert-error" style="display:none">
+        No package found with that tracking number. Please check and try again.
+    </div>
+
+    <div id="trackingCard" class="tracking-card" style="display:none">
+        <div class="tracking-header">
+            <div>
+                <h2 id="tnDisplay"></h2>
+                <p class="tracking-sub">Recipient: <strong id="recipientDisplay"></strong></p>
+            </div>
+            <span id="statusBadge" class="badge"></span>
+        </div>
+
+        <div class="tracking-addresses">
+            <div class="address-item">
+                <span class="address-label">📦 From</span>
+                <span id="fromAddress"></span>
+            </div>
+            <div class="address-arrow">→</div>
+            <div class="address-item">
+                <span class="address-label">🏠 To</span>
+                <span id="toAddress"></span>
+            </div>
+        </div>
+
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.2rem">Tracking History</h3>
+        <div class="timeline" id="timeline"></div>
+    </div>
+</main>
+
+<footer class="footer"><p>🚀 NowNow Courier – Interactive Prototype</p></footer>
+<script src="js/prototype.js"></script>
+<script>
+    var PACKAGES = {
+        'NN-20240001': {
+            recipient: 'Bob Recipient',
+            from: '10 Main St, New York, NY',
+            to:   '55 Park Ave, New York, NY',
+            status: 'delivered',
+            label: 'DELIVERED',
+            events: [
+                { time: '10 Mar 2024, 09:00', status: 'PENDING',    desc: 'Package registered and awaiting driver.' },
+                { time: '10 Mar 2024, 09:00', status: 'ASSIGNED',   desc: 'Driver Dan Deliverer assigned.' },
+                { time: '10 Mar 2024, 09:30', status: 'PICKED UP',  desc: 'Package picked up by driver.' },
+                { time: '10 Mar 2024, 10:15', status: 'IN TRANSIT', desc: 'On the way to destination.' },
+                { time: '10 Mar 2024, 10:45', status: 'DELIVERED',  desc: 'Package delivered successfully. ✅' },
+            ]
+        },
+        'NN-20240002': {
+            recipient: 'Sara Smith',
+            from: '10 Main St, New York, NY',
+            to:   '120 Wall St, New York, NY',
+            status: 'in_transit',
+            label: 'IN TRANSIT',
+            events: [
+                { time: '12 Mar 2024, 13:00', status: 'PENDING',    desc: 'Package registered and awaiting driver.' },
+                { time: '12 Mar 2024, 14:00', status: 'ASSIGNED',   desc: 'Driver Dan Deliverer assigned.' },
+                { time: '12 Mar 2024, 14:20', status: 'PICKED UP',  desc: 'Package picked up by driver.' },
+                { time: '12 Mar 2024, 14:50', status: 'IN TRANSIT', desc: 'En route to destination.' },
+            ]
+        },
+        'NN-20240003': {
+            recipient: 'Legal Dept',
+            from: '98 Broadway, New York, NY',
+            to:   '5 Times Sq, New York, NY',
+            status: 'pending',
+            label: 'PENDING',
+            events: [
+                { time: '13 Mar 2024, 10:00', status: 'PENDING', desc: 'Package registered, awaiting driver assignment.' },
+            ]
+        }
+    };
+
+    // Pre-fill from URL param
+    var params = new URLSearchParams(location.search);
+    if (params.get('number')) {
+        document.getElementById('trackInput').value = params.get('number');
+        trackPackage();
+    }
+
+    function trackPackage() {
+        var num = document.getElementById('trackInput').value.trim().toUpperCase();
+        var pkg = PACKAGES[num];
+        document.getElementById('notFound').style.display    = 'none';
+        document.getElementById('trackingCard').style.display = 'none';
+
+        if (!pkg) {
+            document.getElementById('notFound').style.display = 'block';
+            return;
+        }
+
+        // Populate card
+        document.getElementById('tnDisplay').textContent        = num;
+        document.getElementById('recipientDisplay').textContent = pkg.recipient;
+        document.getElementById('fromAddress').textContent      = pkg.from;
+        document.getElementById('toAddress').textContent        = pkg.to;
+
+        var badge = document.getElementById('statusBadge');
+        badge.textContent = pkg.label;
+        badge.className   = 'badge badge-' + pkg.status;
+
+        // Build timeline
+        var timeline = document.getElementById('timeline');
+        timeline.innerHTML = '';
+        pkg.events.forEach(function(ev, i) {
+            var isCurrent = i === pkg.events.length - 1;
+            var item = document.createElement('div');
+            item.className = 'timeline-item' + (isCurrent ? ' timeline-current' : '');
+            item.innerHTML =
+                '<div class="timeline-dot"></div>' +
+                '<div class="timeline-content">' +
+                    '<span class="timeline-status">' + ev.status + '</span>' +
+                    '<p class="timeline-desc">' + ev.desc + '</p>' +
+                    '<time class="timeline-time">' + ev.time + '</time>' +
+                '</div>';
+            timeline.appendChild(item);
+        });
+
+        document.getElementById('trackingCard').style.display = 'block';
+    }
+</script>
+</body>
+</html>
