@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>Nownow | Home page</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NowNow – Fast Package Delivery</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
