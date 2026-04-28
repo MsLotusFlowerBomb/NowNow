@@ -112,3 +112,25 @@ CREATE TABLE IF NOT EXISTS tracking_events (
     CONSTRAINT fk_events_package FOREIGN KEY (package_id) REFERENCES packages(id),
     INDEX idx_events_package (package_id)
 ) ENGINE=InnoDB;
+
+--:NOTE: Procedure 1: Assigning a Driver (Affects packages, deliveries, drivers, tracking_events)
+DELIMITER //
+CREATE PROCEDURE AssignDriverToPackage(IN p_pkg_id INT, IN p_driver_id INT)
+BEGIN
+    UPDATE packages SET status = 'ASSIGNED' WHERE id = p_pkg_id;
+    INSERT INTO deliveries (package_id, driver_id, status) VALUES (p_pkg_id, p_driver_id, 'ASSIGNED');
+    UPDATE drivers SET availability_status = 'ON_DELIVERY' WHERE id = p_driver_id;
+    INSERT INTO tracking_events (package_id, status, description) VALUES (p_pkg_id, 'ASSIGNED', 'Driver assigned');
+END //
+DELIMITER ;
+
+--NOTE: Procedure 2: Complete Delivery (Affects deliveries, packages, drivers, tracking_events)
+DELIMITER //
+CREATE PROCEDURE CompleteDelivery(IN p_del_id INT, IN p_pkg_id INT, IN p_driver_id INT)
+BEGIN
+    UPDATE deliveries SET status = 'DELIVERED', delivered_at = NOW() WHERE id = p_del_id;
+    UPDATE packages SET status = 'DELIVERED' WHERE id = p_pkg_id;
+    UPDATE drivers SET availability_status = 'AVAILABLE', total_deliveries = total_deliveries + 1 WHERE id = p_driver_id;
+    INSERT INTO tracking_events (package_id, status, description) VALUES (p_pkg_id, 'DELIVERED', 'Delivered successfully');
+END //
+DELIMITER ;
