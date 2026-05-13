@@ -27,7 +27,7 @@ Authenticates a user.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `email` | string | ✅ | User's registered email address |
-| `password` | string | ✅ | Plain-text password (compared against BCrypt hash) |
+| `password` | string | ✅ | Plain-text password (compared against stored password) |
 
 **Responses:**
 - **302 Redirect** to `/customer/dashboard`, `/driver/dashboard`, or `/admin/dashboard` on success.

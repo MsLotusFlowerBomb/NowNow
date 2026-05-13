@@ -43,7 +43,7 @@ NowNow/
     │   ├── dao/         UserDAO · DriverDAO · PackageDAO · DeliveryDAO · TrackingEventDAO
     │   ├── servlet/     Login · Logout · Register · Package · Tracking
     │   │                CustomerDashboard · DriverDashboard · AdminDashboard
-    │   └── util/        DBConnection · PasswordUtil · TrackingNumberUtil
+    │   └── util/        DBConnection · TrackingNumberUtil
     ├── resources/
     │   └── db.properties                # Database connection settings
     └── webapp/
@@ -130,7 +130,7 @@ mvn tomcat7:run
 
 ## 🔒 Security
 
-- Passwords are hashed with **BCrypt** (work factor 12)
+- Passwords are stored in plain text (school project requirement)
 - All SQL uses **PreparedStatement** to prevent injection
 - Role-based access control enforced in every servlet
 - Session timeout: 30 minutes

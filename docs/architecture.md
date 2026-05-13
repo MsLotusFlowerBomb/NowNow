@@ -50,7 +50,7 @@ NowNow is a **3-tiered web application** that models an Uber-style courier packa
 │  └─────────────────────────────────────────────────────┘    │
 │  ┌─────────────────────────────────────────────────────┐    │
 │  │              Utility Classes                        │    │
-│  │  DBConnection  PasswordUtil  TrackingNumberUtil     │    │
+│  │  DBConnection  TrackingNumberUtil                   │    │
 │  └─────────────────────────────────────────────────────┘    │
 └──────────────────────────┬──────────────────────────────────┘
                            │  JDBC (mysql-connector-java)
@@ -83,13 +83,13 @@ NowNow is a **3-tiered web application** that models an Uber-style courier packa
 | **Servlets** | Handle HTTP requests. Each servlet validates input, calls DAOs, sets request attributes, and forwards to JSP |
 | **DAOs** | Encapsulate all SQL. Use `PreparedStatement` to prevent SQL injection. Return model objects |
 | **Model POJOs** | Plain Java objects matching database table columns. Used throughout the request lifecycle |
-| **Utilities** | Cross-cutting concerns: database connection pooling (`DBConnection`), BCrypt password hashing (`PasswordUtil`), unique tracking-number generation (`TrackingNumberUtil`) |
+| **Utilities** | Cross-cutting concerns: database connection pooling (`DBConnection`), unique tracking-number generation (`TrackingNumberUtil`) |
 
 ### Tier 3 – Database Layer
 
 | Table | Purpose |
 |-------|---------|
-| `users` | All accounts (customers, drivers, admins). Password stored as BCrypt hash |
+| `users` | All accounts (customers, drivers, admins). Password stored in plain text |
 | `drivers` | Extended driver profile linked 1-to-1 with a `users` row |
 | `packages` | Package details and current status |
 | `deliveries` | Assignment of package to driver; timestamps for pickup and delivery |
@@ -121,7 +121,7 @@ Browser                Tomcat / PackageServlet           MySQL
 | Area | Implementation |
 |------|----------------|
 | **Authentication** | HTTP session (`HttpSession`). Session invalidated on logout |
-| **Password storage** | BCrypt with work factor 12 (never stored in plain text) |
+| **Password storage** | Plain text (school project requirement) |
 | **SQL injection prevention** | All queries use `PreparedStatement` with bound parameters |
 | **Role-based access control** | Each servlet checks `session.getAttribute("loggedInUser")` and the user's `Role` enum before processing |
 | **Session timeout** | 30 minutes idle timeout configured in `web.xml` |

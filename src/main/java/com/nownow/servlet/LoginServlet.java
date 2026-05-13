@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Optional;
 
 /**
@@ -40,6 +41,12 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         String email    = req.getParameter("email");
         String password = req.getParameter("password");
+        if (email == null) {
+            email = req.getParameter("j_username");
+        }
+        if (password == null) {
+            password = req.getParameter("j_password");
+        }
 
         if (email == null || email.isBlank() || password == null || password.isBlank()) {
             req.setAttribute("errorMessage", "Email and password are required.");
@@ -47,19 +54,34 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
+        String normalizedEmail = email.trim().toLowerCase();
         try {
-            Optional<User> optUser = userDAO.findByEmail(email.trim().toLowerCase());
-            if (optUser.isPresent() && password.equals(optUser.get().getPassword())) {
-                User user = optUser.get();
-                HttpSession session = req.getSession(true);
-                session.setAttribute("loggedInUser", user);
-                session.setMaxInactiveInterval(30 * 60); // 30 minutes
-                redirectToDashboard(resp, user);
-            } else {
+            req.login(normalizedEmail, password);
+        } catch (ServletException e) {
+            req.setAttribute("errorMessage", "Invalid email or password.");
+            req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+            return;
+        }
+
+        try {
+            Optional<User> optUser = userDAO.findByEmail(normalizedEmail);
+            if (optUser.isEmpty()) {
+                req.logout();
                 req.setAttribute("errorMessage", "Invalid email or password.");
                 req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+                return;
             }
-        } catch (Exception e) {
+            User user = optUser.get();
+            HttpSession session = req.getSession(true);
+            session.setAttribute("loggedInUser", user);
+            session.setMaxInactiveInterval(30 * 60); // 30 minutes
+            redirectToDashboard(resp, user);
+        } catch (SQLException e) {
+            try {
+                req.logout();
+            } catch (ServletException logoutError) {
+                e.addSuppressed(logoutError);
+            }
             throw new ServletException("Error during login", e);
         }
     }

@@ -29,6 +29,16 @@
         <session-timeout>30</session-timeout>
     </session-config>
 
+    <security-role>
+        <role-name>ADMIN</role-name>
+    </security-role>
+    <security-role>
+        <role-name>DRIVER</role-name>
+    </security-role>
+    <security-role>
+        <role-name>CUSTOMER</role-name>
+    </security-role>
+
     <!-- Admin pages: only ADMIN role -->
     <security-constraint>
         <web-resource-collection>
