@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Optional;
 
 /**
@@ -53,9 +54,16 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
+        String normalizedEmail = email.trim().toLowerCase();
         try {
-            String normalizedEmail = email.trim().toLowerCase();
             req.login(normalizedEmail, password);
+        } catch (ServletException e) {
+            req.setAttribute("errorMessage", "Invalid email or password.");
+            req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+            return;
+        }
+
+        try {
             Optional<User> optUser = userDAO.findByEmail(normalizedEmail);
             if (optUser.isEmpty()) {
                 req.logout();
@@ -68,10 +76,7 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("loggedInUser", user);
             session.setMaxInactiveInterval(30 * 60); // 30 minutes
             redirectToDashboard(resp, user);
-        } catch (ServletException e) {
-            req.setAttribute("errorMessage", "Invalid email or password.");
-            req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new ServletException("Error during login", e);
         }
     }
