@@ -40,6 +40,12 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         String email    = req.getParameter("email");
         String password = req.getParameter("password");
+        if (email == null) {
+            email = req.getParameter("j_username");
+        }
+        if (password == null) {
+            password = req.getParameter("j_password");
+        }
 
         if (email == null || email.isBlank() || password == null || password.isBlank()) {
             req.setAttribute("errorMessage", "Email and password are required.");
@@ -48,17 +54,23 @@ public class LoginServlet extends HttpServlet {
         }
 
         try {
-            Optional<User> optUser = userDAO.findByEmail(email.trim().toLowerCase());
-            if (optUser.isPresent() && password.equals(optUser.get().getPassword())) {
-                User user = optUser.get();
-                HttpSession session = req.getSession(true);
-                session.setAttribute("loggedInUser", user);
-                session.setMaxInactiveInterval(30 * 60); // 30 minutes
-                redirectToDashboard(resp, user);
-            } else {
+            String normalizedEmail = email.trim().toLowerCase();
+            req.login(normalizedEmail, password);
+            Optional<User> optUser = userDAO.findByEmail(normalizedEmail);
+            if (optUser.isEmpty()) {
+                req.logout();
                 req.setAttribute("errorMessage", "Invalid email or password.");
                 req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+                return;
             }
+            User user = optUser.get();
+            HttpSession session = req.getSession(true);
+            session.setAttribute("loggedInUser", user);
+            session.setMaxInactiveInterval(30 * 60); // 30 minutes
+            redirectToDashboard(resp, user);
+        } catch (ServletException e) {
+            req.setAttribute("errorMessage", "Invalid email or password.");
+            req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
         } catch (Exception e) {
             throw new ServletException("Error during login", e);
         }
