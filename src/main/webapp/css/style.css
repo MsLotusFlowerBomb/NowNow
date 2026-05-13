@@ -682,3 +682,40 @@ img { max-width: 100%; display: block; }
     .tracking-addresses { flex-direction: column; }
     .address-arrow { transform: rotate(90deg); }
 }
+
+/* Report Table Styling */
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 1rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.report-table thead tr {
+    background-color: #007bff;
+    color: #ffffff;
+    text-align: left;
+}
+
+.report-table th, .report-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #dddddd;
+}
+
+.report-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.report-table tbody tr:last-of-type {
+    border-bottom: 2px solid #007bff;
+}
+
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+.available { background: #d4edda; color: #155724; }
+.busy { background: #fff3cd; color: #856404; }

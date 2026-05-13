@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,14 +34,14 @@
                 <div class="form-group">
                     <label for="phone">Phone Number</label>
                     <input type="tel" id="phone" name="phone"
-                           placeholder="+1 555-0100" autocomplete="tel">
+                           placeholder="+27 12 345 6789" autocomplete="tel">
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="email">Email Address *</label>
                 <input type="email" id="email" name="email" required
-                       placeholder="you@example.com" autocomplete="email">
+                       placeholder="exampe@gmail.com" autocomplete="email">
             </div>
 
             <div class="form-row">

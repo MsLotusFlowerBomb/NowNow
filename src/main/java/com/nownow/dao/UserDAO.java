@@ -28,16 +28,16 @@ public class UserDAO {
      * @throws SQLException on any database error
      */
     public int create(User user) throws SQLException {
-        String sql = "INSERT INTO users (full_name, email, password_hash, phone, role) "
+        String sql = "INSERT INTO users (full_name, email, phone, role, password) "
                    + "VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, user.getFullName());
             ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPasswordHash());
-            ps.setString(4, user.getPhone());
-            ps.setString(5, user.getRole().name());
+            ps.setString(3, user.getPhone());
+            ps.setString(4, user.getRole().name());
+            ps.setString(5, user.getPassword());
             ps.executeUpdate();
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -145,7 +145,7 @@ public class UserDAO {
         u.setId(rs.getInt("id"));
         u.setFullName(rs.getString("full_name"));
         u.setEmail(rs.getString("email"));
-        u.setPasswordHash(rs.getString("password_hash"));
+        u.setPassword(rs.getString("password"));
         u.setPhone(rs.getString("phone"));
         u.setRole(User.Role.valueOf(rs.getString("role")));
         Timestamp createdAt = rs.getTimestamp("created_at");

@@ -2,7 +2,6 @@ package com.nownow.servlet;
 
 import com.nownow.dao.UserDAO;
 import com.nownow.model.User;
-import com.nownow.util.PasswordUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -50,7 +49,7 @@ public class LoginServlet extends HttpServlet {
 
         try {
             Optional<User> optUser = userDAO.findByEmail(email.trim().toLowerCase());
-            if (optUser.isPresent() && PasswordUtil.verify(password, optUser.get().getPasswordHash())) {
+            if (optUser.isPresent() && password.equals(optUser.get().getPassword())) {
                 User user = optUser.get();
                 HttpSession session = req.getSession(true);
                 session.setAttribute("loggedInUser", user);

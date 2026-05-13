@@ -126,9 +126,9 @@ public class DeliveryDAO {
 	public void updateStatus(int deliveryId, Delivery.Status status) throws SQLException {
 		String col = switch (status) {
 			case PICKED_UP ->
-				", picked_up_at = NOW()";
+				", picked_up_at = CURRENT_TIMESTAMP";
 			case DELIVERED ->
-				", delivered_at = NOW()";
+				", delivered_at = CURRENT_TIMESTAMP";
 			default ->
 				"";
 		};

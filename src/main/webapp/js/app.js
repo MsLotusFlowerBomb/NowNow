@@ -56,7 +56,7 @@
         function updatePrice() {
             var weight = parseFloat(weightInput.value) || 0;
             var price  = 5.0 + weight * 3.5;
-            priceDisplay.textContent = '$' + price.toFixed(2);
+            priceDisplay.textContent = 'R' + price.toFixed(2);
         }
         weightInput.addEventListener('input', updatePrice);
         updatePrice();
