@@ -119,7 +119,9 @@ that points at the same `users` table used by the app:
    - **Password Column:** `password`
    - **Group Table:** `users`
    - **Group Name Column:** `role`
-3. Ensure the realm uses **plain text** passwords (no digest) to match the schema.
+3. Configure the realm’s **digest settings** to match how passwords are stored in the
+   database. For production, store **hashed passwords** (bcrypt/PBKDF2) and set the
+   realm’s digest algorithm accordingly.
 
 The app’s `web.xml` references `NowNowRealm`, and the login form posts to
 `j_security_check` to use the container-managed JDBC realm.
@@ -149,7 +151,8 @@ The app’s `web.xml` references `NowNowRealm`, and the login form posts to
 
 ## 🔒 Security
 
-- Passwords are stored in plain text (school project requirement)
+- Demo data uses plain-text passwords for the school project; do **not** use this
+  in production—migrate to hashed passwords and update the realm digest settings.
 - All SQL uses **PreparedStatement** to prevent injection
 - Role-based access control enforced in every servlet
 - Session timeout: 30 minutes
