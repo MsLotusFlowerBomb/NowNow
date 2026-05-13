@@ -19,7 +19,7 @@ packages ───────────── tracking_events  (1-to-many, vi
 | `id` | `INT` | PK, AUTO_INCREMENT | Surrogate primary key |
 | `full_name` | `VARCHAR(120)` | NOT NULL | Display name |
 | `email` | `VARCHAR(180)` | NOT NULL, UNIQUE | Used as login credential |
-| `password_hash` | `VARCHAR(255)` | NOT NULL | BCrypt hash (60 chars) |
+| `password` | `VARCHAR(255)` | NOT NULL | Plain-text password (school project requirement) |
 | `phone` | `VARCHAR(20)` | nullable | Contact number |
 | `role` | `ENUM('CUSTOMER','DRIVER','ADMIN')` | NOT NULL, DEFAULT 'CUSTOMER' | Determines access level |
 | `created_at` | `DATETIME` | NOT NULL, DEFAULT NOW() | Account creation timestamp |
@@ -118,7 +118,7 @@ PENDING ──► ASSIGNED ──► PICKED_UP ──► IN_TRANSIT ──► DE
 
 | Decision | Rationale |
 |----------|-----------|
-| BCrypt password hashes | Industry-standard adaptive algorithm; resistant to brute force even if the database is leaked |
+| Plain-text passwords | Simplified credential storage for coursework; not recommended for production |
 | Prepared statements in all DAOs | Prevents SQL injection at the data access layer |
 | Separate `tracking_events` table | Decouples the audit log from the package's current status, enabling a full history |
 | ENUM columns for status | Enforces valid values at the database level, reducing the chance of invalid data entering the system |
