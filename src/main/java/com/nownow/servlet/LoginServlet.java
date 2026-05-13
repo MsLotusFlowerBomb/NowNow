@@ -79,7 +79,8 @@ public class LoginServlet extends HttpServlet {
         } catch (SQLException e) {
             try {
                 req.logout();
-            } catch (ServletException ignored) {
+            } catch (ServletException logoutError) {
+                e.addSuppressed(logoutError);
             }
             throw new ServletException("Error during login", e);
         }

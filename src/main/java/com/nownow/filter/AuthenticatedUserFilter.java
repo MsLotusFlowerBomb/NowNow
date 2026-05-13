@@ -44,12 +44,19 @@ public class AuthenticatedUserFilter implements Filter {
                             session.setAttribute("loggedInUser", user.get());
                             session.setMaxInactiveInterval(30 * 60);
                         } else {
+                            if (session != null) {
+                                session.invalidate();
+                            }
                             req.logout();
                         }
                     } catch (SQLException | ServletException e) {
+                        if (session != null) {
+                            session.invalidate();
+                        }
                         try {
                             req.logout();
-                        } catch (ServletException ignored) {
+                        } catch (ServletException logoutError) {
+                            e.addSuppressed(logoutError);
                         }
                         throw new ServletException("Failed to load authenticated user", e);
                     }
