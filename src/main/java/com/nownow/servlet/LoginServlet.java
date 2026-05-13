@@ -77,6 +77,10 @@ public class LoginServlet extends HttpServlet {
             session.setMaxInactiveInterval(30 * 60); // 30 minutes
             redirectToDashboard(resp, user);
         } catch (SQLException e) {
+            try {
+                req.logout();
+            } catch (ServletException ignored) {
+            }
             throw new ServletException("Error during login", e);
         }
     }

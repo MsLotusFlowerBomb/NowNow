@@ -4,6 +4,7 @@ import com.nownow.dao.UserDAO;
 import com.nownow.model.User;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -21,7 +22,12 @@ import java.util.Optional;
 @WebFilter("/*")
 public class AuthenticatedUserFilter implements Filter {
 
-    private final UserDAO userDAO = new UserDAO();
+    private UserDAO userDAO;
+
+    @Override
+    public void init(FilterConfig filterConfig) {
+        userDAO = new UserDAO();
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -37,8 +43,14 @@ public class AuthenticatedUserFilter implements Filter {
                             session = req.getSession(true);
                             session.setAttribute("loggedInUser", user.get());
                             session.setMaxInactiveInterval(30 * 60);
+                        } else {
+                            req.logout();
                         }
-                    } catch (SQLException e) {
+                    } catch (SQLException | ServletException e) {
+                        try {
+                            req.logout();
+                        } catch (ServletException ignored) {
+                        }
                         throw new ServletException("Failed to load authenticated user", e);
                     }
                 }
