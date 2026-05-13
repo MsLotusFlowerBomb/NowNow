@@ -16,15 +16,15 @@
 					<p>Sign in to your NowNow account</p>
 				</div>
 				<div class="alert alert-error">Invalid email or password. Please try again.</div>
-				<form action="${pageContext.request.contextPath}/login" method="post" class="auth-form" novalidate>
+				<form action="${pageContext.request.contextPath}/j_security_check" method="post" class="auth-form" novalidate>
 					<div class="form-group">
 						<label for="email">Email Address</label>
-						<input type="email" id="email" name="email" required
+						<input type="email" id="email" name="j_username" required
 						       placeholder="you@example.com" autocomplete="email">
 					</div>
 					<div class="form-group">
 						<label for="password">Password</label>
-						<input type="password" id="password" name="password" required
+						<input type="password" id="password" name="j_password" required
 						       placeholder="••••••••" autocomplete="current-password">
 					</div>
 					<button type="submit" class="btn btn-primary btn-full">Sign In</button>
