@@ -1,3 +1,16 @@
+-- 1. DROP EXISTING TABLES (In reverse order of dependency)
+-- Note: You might get errors saying "Table does not exist" on the first run. 
+-- That is fine and expected!
+DROP TABLE tracking_events;
+DROP TABLE deliveries;
+DROP TABLE packages;
+DROP TABLE drivers;
+DROP TABLE users;
+
+-- 2. DROP EXISTING PROCEDURES
+DROP PROCEDURE AssignDriverToPackage;
+DROP PROCEDURE CompleteDelivery;
+
 -- -------------------------------------------------------
 -- Table: users
 -- -------------------------------------------------------
@@ -16,7 +29,6 @@ CREATE TABLE users (
 );
 
 CREATE INDEX idx_users_email ON users (email);
-CREATE INDEX idx_users_role  ON users (role);
 
 -- -------------------------------------------------------
 -- Table: drivers
@@ -39,8 +51,6 @@ CREATE TABLE drivers (
     CONSTRAINT chk_drivers_vehicle CHECK (vehicle_type IN ('BICYCLE','MOTORBIKE','CAR','VAN')),
     CONSTRAINT chk_drivers_avail CHECK (availability_status IN ('AVAILABLE','ON_DELIVERY','OFFLINE'))
 );
-
-CREATE INDEX idx_drivers_availability ON drivers (availability_status);
 
 -- -------------------------------------------------------
 -- Table: packages
@@ -65,10 +75,6 @@ CREATE TABLE packages (
     CONSTRAINT chk_packages_status CHECK (status IN ('PENDING','ASSIGNED','PICKED_UP','IN_TRANSIT','DELIVERED','CANCELLED'))
 );
 
-CREATE INDEX idx_packages_tracking ON packages (tracking_number);
-CREATE INDEX idx_packages_sender   ON packages (sender_id);
-CREATE INDEX idx_packages_status   ON packages (status);
-
 -- -------------------------------------------------------
 -- Table: deliveries
 -- -------------------------------------------------------
@@ -87,9 +93,6 @@ CREATE TABLE deliveries (
     CONSTRAINT fk_deliveries_driver  FOREIGN KEY (driver_id)  REFERENCES drivers(id),
     CONSTRAINT chk_deliveries_status CHECK (status IN ('ASSIGNED','PICKED_UP','IN_TRANSIT','DELIVERED','FAILED'))
 );
-
-CREATE INDEX idx_deliveries_driver ON deliveries (driver_id);
-CREATE INDEX idx_deliveries_status ON deliveries (status);
 
 -- -------------------------------------------------------
 -- Table: tracking_events
