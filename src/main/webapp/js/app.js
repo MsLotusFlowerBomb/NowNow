@@ -74,7 +74,10 @@
             })
                 .then(function (response) {
                     return response.json()
-                        .catch(function () { return null; })
+                        .catch(function (err) {
+                            console.warn('Login response was not JSON.', err);
+                            return null;
+                        })
                         .then(function (data) {
                             if (response.ok) {
                                 if (data && data.redirectUrl) {

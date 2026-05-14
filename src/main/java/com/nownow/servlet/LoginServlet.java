@@ -3,6 +3,7 @@ package com.nownow.servlet;
 import com.google.gson.Gson;
 import com.nownow.dao.UserDAO;
 import com.nownow.model.User;
+import com.nownow.util.PasswordUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,8 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Optional;
@@ -61,11 +60,14 @@ public class LoginServlet extends HttpServlet {
         String normalizedEmail = email.trim().toLowerCase();
         try {
             Optional<User> optUser = userDAO.findByEmail(normalizedEmail);
-            if (optUser.isEmpty() || !passwordMatches(password, optUser.get().getPassword())) {
+            if (optUser.isEmpty() || !PasswordUtil.verifyPassword(password, optUser.get().getPassword())) {
                 handleLoginError(req, resp, "Invalid email or password.", HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
             User user = optUser.get();
+            if (!PasswordUtil.isHashed(user.getPassword())) {
+                userDAO.updatePassword(user.getId(), PasswordUtil.hashPassword(password));
+            }
             HttpSession existingSession = req.getSession(false);
             if (existingSession != null) {
                 existingSession.invalidate();
@@ -115,14 +117,5 @@ public class LoginServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         resp.getWriter().write(GSON.toJson(payload));
-    }
-
-    private boolean passwordMatches(String rawPassword, String storedPassword) {
-        if (rawPassword == null || storedPassword == null) {
-            return false;
-        }
-        return MessageDigest.isEqual(
-                rawPassword.getBytes(StandardCharsets.UTF_8),
-                storedPassword.getBytes(StandardCharsets.UTF_8));
     }
 }

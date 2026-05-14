@@ -35,7 +35,7 @@
             <div class="form-group">
                 <label for="email">Email Address</label>
                 <input type="email" id="email" name="email" required
-                       placeholder="example@gmail.com" autocomplete="email">
+                       placeholder="you@example.com" autocomplete="email">
             </div>
             <div class="form-group">
                 <label for="password">Password</label>

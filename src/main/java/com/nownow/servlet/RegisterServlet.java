@@ -4,6 +4,7 @@ import com.nownow.dao.DriverDAO;
 import com.nownow.dao.UserDAO;
 import com.nownow.model.Driver;
 import com.nownow.model.User;
+import com.nownow.util.PasswordUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -79,7 +80,7 @@ public class RegisterServlet extends HttpServlet {
             User user = new User();
             user.setFullName(fullName.trim());
             user.setEmail(email.trim().toLowerCase());
-            user.setPassword(password);
+            user.setPassword(PasswordUtil.hashPassword(password));
             user.setPhone(phone != null ? phone.trim() : null);
             user.setRole(role);
             int userId = userDAO.create(user);
