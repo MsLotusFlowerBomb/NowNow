@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -50,14 +51,16 @@ public class AdminReportsServlet extends HttpServlet {
 
         LocalDate startDate = parseDate(req.getParameter("startDate")).orElse(defaultStart);
         LocalDate endDate = parseDate(req.getParameter("endDate")).orElse(defaultEnd);
+        List<String> filterWarnings = new ArrayList<>();
         if (endDate.isBefore(startDate)) {
             endDate = startDate;
+            filterWarnings.add("End date cannot be before start date. Using the start date instead.");
         }
 
         Integer driverFilter = parseDriverId(req.getParameter("driverId"));
 
         try {
-            List<Driver> drivers = driverDAO.findAll();
+            List<Driver> drivers = loadDrivers();
             Optional<Driver> selectedDriver = Optional.empty();
             if (driverFilter != null) {
                 int driverIdValue = driverFilter;
@@ -66,15 +69,14 @@ public class AdminReportsServlet extends HttpServlet {
                         .findFirst();
                 if (selectedDriver.isEmpty()) {
                     driverFilter = null;
+                    filterWarnings.add("Selected driver was not found. Showing all drivers.");
                 }
             }
 
             List<Driver> reportDrivers = selectedDriver.map(List::of).orElse(drivers);
-            List<Delivery> deliveries = driverFilter != null
-                    ? deliveryDAO.findByDriverId(driverFilter)
-                    : deliveryDAO.findAll();
 
-            Map<Integer, Package> packagesById = packageDAO.findAll().stream()
+            List<Delivery> deliveries = loadDeliveries(driverFilter);
+            Map<Integer, Package> packagesById = loadPackages().stream()
                     .collect(Collectors.toMap(Package::getId, pkg -> pkg));
 
             LocalDateTime startDateTime = startDate.atStartOfDay();
@@ -151,11 +153,39 @@ public class AdminReportsServlet extends HttpServlet {
             req.setAttribute("activeCount", activeCount);
             req.setAttribute("successRate", successRate);
             req.setAttribute("revenueDisplay", revenueDisplay);
+            req.setAttribute("filterWarnings", filterWarnings);
 
             req.getRequestDispatcher("/WEB-INF/views/admin/report.jsp").forward(req, resp);
 
-        } catch (Exception e) {
-            throw new ServletException("Failed to load report data", e);
+        } catch (SQLException e) {
+            throw new ServletException(e.getMessage(), e);
+        }
+    }
+
+    private List<Driver> loadDrivers() throws SQLException {
+        try {
+            return driverDAO.findAll();
+        } catch (SQLException e) {
+            throw new SQLException("Failed to load drivers for the report.", e);
+        }
+    }
+
+    private List<Delivery> loadDeliveries(Integer driverFilter) throws SQLException {
+        try {
+            if (driverFilter != null) {
+                return deliveryDAO.findByDriverId(driverFilter);
+            }
+            return deliveryDAO.findAll();
+        } catch (SQLException e) {
+            throw new SQLException("Failed to load deliveries for the report.", e);
+        }
+    }
+
+    private List<Package> loadPackages() throws SQLException {
+        try {
+            return packageDAO.findAll();
+        } catch (SQLException e) {
+            throw new SQLException("Failed to load packages for the report.", e);
         }
     }
 

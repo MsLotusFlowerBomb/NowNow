@@ -19,6 +19,16 @@
         </div>
     </div>
 
+    <c:if test="${not empty filterWarnings}">
+        <div class="alert alert-info">
+            <ul>
+                <c:forEach var="warning" items="${filterWarnings}">
+                    <li>${warning}</li>
+                </c:forEach>
+            </ul>
+        </div>
+    </c:if>
+
     <section class="form-card">
         <h2>Report Filters</h2>
         <p class="dashboard-sub">Defaults to the current month to simplify filter selection.</p>
