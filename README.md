@@ -107,24 +107,17 @@ mvn tomcat7:run
 
 ---
 
-## 🔐 GlassFish JDBC Realm (Container Auth)
+## 🔐 GlassFish File Realm (Container Auth)
 
-When deploying to GlassFish/Payara with FORM authentication, configure a JDBC realm
-that points at the same `users` table used by the app:
+When deploying to GlassFish/Payara with FORM authentication, use the default
+file realm that ships with the server:
 
-1. Create a JDBC connection pool/resource for your NowNow database.
-2. Create a JDBC realm named **`NowNowRealm`** with:
-   - **User Table:** `users`
-   - **User Name Column:** `email`
-   - **Password Column:** `password`
-   - **Group Table:** `users`
-   - **Group Name Column:** `role`
-3. Configure the realm’s **digest settings** to match how passwords are stored in the
-   database. For production, store **hashed passwords** (bcrypt/PBKDF2) and set the
-   realm’s digest algorithm accordingly.
+1. Use the built-in realm named **`file`** (no JDBC realm required).
+2. Create users and assign groups (`ADMIN`, `DRIVER`, `CUSTOMER`) in the file realm
+   using the admin console or `asadmin create-file-user`.
 
-The app’s `web.xml` references `NowNowRealm`, and the login form posts to
-`j_security_check` to use the container-managed JDBC realm.
+The app’s `web.xml` references the **`file`** realm, and the login form posts to
+`j_security_check` to use the container-managed file realm.
 
 ---
 
