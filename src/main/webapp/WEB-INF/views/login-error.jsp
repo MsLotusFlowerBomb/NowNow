@@ -15,16 +15,16 @@
 					<h1>🚀 Welcome Back</h1>
 					<p>Sign in to your NowNow account</p>
 				</div>
-				<div class="alert alert-error">Invalid email or password. Please try again.</div>
-				<form action="${pageContext.request.contextPath}/j_security_check" method="post" class="auth-form" novalidate>
+				<div id="loginError" class="alert alert-error">Invalid email or password. Please try again.</div>
+				<form action="${pageContext.request.contextPath}/login" method="post" class="auth-form" id="loginForm" novalidate>
 					<div class="form-group">
 						<label for="email">Email Address</label>
-						<input type="email" id="email" name="j_username" required
+						<input type="email" id="email" name="email" required
 						       placeholder="you@example.com" autocomplete="email">
 					</div>
 					<div class="form-group">
 						<label for="password">Password</label>
-						<input type="password" id="password" name="j_password" required
+						<input type="password" id="password" name="password" required
 						       placeholder="••••••••" autocomplete="current-password">
 					</div>
 					<button type="submit" class="btn btn-primary btn-full">Sign In</button>
@@ -36,5 +36,6 @@
 			</div>
 		</main>
 		<%@ include file="/WEB-INF/views/partials/footer.jsp" %>
+		<script src="${pageContext.request.contextPath}/js/app.js"></script>
 	</body>
 </html>

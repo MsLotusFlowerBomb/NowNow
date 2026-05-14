@@ -48,6 +48,53 @@
         });
     }
 
+    // ── Login form submission (AJAX) ───────────────────────────
+    const loginForm = document.getElementById('loginForm');
+    const loginError = document.getElementById('loginError');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', function (e) {
+            if (!window.fetch) {
+                return;
+            }
+            e.preventDefault();
+            if (loginError) {
+                loginError.textContent = '';
+                loginError.hidden = true;
+            }
+
+            const formData = new FormData(loginForm);
+            fetch(loginForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(function (response) {
+                    return response.json()
+                        .catch(function () { return null; })
+                        .then(function (data) {
+                            if (response.ok) {
+                                if (data && data.redirectUrl) {
+                                    window.location.assign(data.redirectUrl);
+                                } else {
+                                    window.location.reload();
+                                }
+                                return;
+                            }
+                            showLoginError(loginError, data && data.error
+                                ? data.error
+                                : 'Login failed. Please try again.');
+                        });
+                })
+                .catch(function () {
+                    showLoginError(loginError, 'Login failed. Please try again.');
+                });
+        });
+    }
+
     // ── Live price estimate on new-package form ────────────────
     const weightInput  = document.getElementById('weight');
     const priceDisplay = document.getElementById('priceDisplay');
@@ -107,6 +154,12 @@
         var existing = input.parentNode.querySelector('.field-error');
         if (existing) existing.remove();
         input.style.borderColor = '';
+    }
+
+    function showLoginError(container, message) {
+        if (!container) return;
+        container.textContent = message;
+        container.hidden = false;
     }
 
 })();

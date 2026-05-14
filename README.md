@@ -107,17 +107,13 @@ mvn tomcat7:run
 
 ---
 
-## 🔐 GlassFish File Realm (Container Auth)
+## 🔐 Application Login (JavaScript + Servlet)
 
-When deploying to GlassFish/Payara with FORM authentication, use the default
-file realm that ships with the server:
-
-1. Use the built-in realm named **`file`** (no JDBC realm required).
-2. Create users and assign groups (`ADMIN`, `DRIVER`, `CUSTOMER`) in the file realm
-   using the admin console or `asadmin create-file-user`.
-
-The app’s `web.xml` references the **`file`** realm, and the login form posts to
-`j_security_check` to use the container-managed file realm.
+Login is handled by the `/login` servlet against the `users` table. The login
+form submits to `/login`, and the page enhances the experience with JavaScript
+to submit via `fetch` and show inline errors. Container-managed realms are not
+required; role checks are enforced in the servlets using the `loggedInUser`
+session attribute.
 
 ---
 
@@ -145,7 +141,7 @@ The app’s `web.xml` references the **`file`** realm, and the login form posts 
 ## 🔒 Security
 
 - Demo data uses plain-text passwords for the school project; do **not** use this
-  in production—migrate to hashed passwords and update the realm digest settings.
+  in production—migrate to hashed passwords before deploying.
 - All SQL uses **PreparedStatement** to prevent injection
 - Role-based access control enforced in every servlet
 - Session timeout: 30 minutes

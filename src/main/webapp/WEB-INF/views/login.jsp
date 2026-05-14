@@ -18,23 +18,28 @@
             <p>Sign in to your NowNow account</p>
         </div>
 
-        <c:if test="${not empty errorMessage}">
-            <div class="alert alert-error">${errorMessage}</div>
-        </c:if>
+        <c:choose>
+            <c:when test="${not empty errorMessage}">
+                <div id="loginError" class="alert alert-error">${errorMessage}</div>
+            </c:when>
+            <c:otherwise>
+                <div id="loginError" class="alert alert-error" hidden></div>
+            </c:otherwise>
+        </c:choose>
 
         <c:if test="${not empty successMessage}">
             <div class="alert alert-success">${successMessage}</div>
         </c:if>
 
-        <form action="${pageContext.request.contextPath}/j_security_check" method="post" class="auth-form" novalidate>
+        <form action="${pageContext.request.contextPath}/login" method="post" class="auth-form" id="loginForm" novalidate>
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="j_username" required
+                <input type="email" id="email" name="email" required
                        placeholder="example@gmail.com" autocomplete="email">
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="j_password" required
+                <input type="password" id="password" name="password" required
                        placeholder="••••••••" autocomplete="current-password">
             </div>
             <button type="submit" class="btn btn-primary btn-full">Sign In</button>

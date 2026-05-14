@@ -49,49 +49,67 @@ public class LoginServlet extends HttpServlet {
         }
 
         if (email == null || email.isBlank() || password == null || password.isBlank()) {
-            req.setAttribute("errorMessage", "Email and password are required.");
-            req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+            handleLoginError(req, resp, "Email and password are required.", HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         String normalizedEmail = email.trim().toLowerCase();
         try {
-            req.login(normalizedEmail, password);
-        } catch (ServletException e) {
-            req.setAttribute("errorMessage", "Invalid email or password.");
-            req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
-            return;
-        }
-
-        try {
             Optional<User> optUser = userDAO.findByEmail(normalizedEmail);
-            if (optUser.isEmpty()) {
-                req.logout();
-                req.setAttribute("errorMessage", "Invalid email or password.");
-                req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+            if (optUser.isEmpty() || !password.equals(optUser.get().getPassword())) {
+                handleLoginError(req, resp, "Invalid email or password.", HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
             User user = optUser.get();
+            HttpSession existingSession = req.getSession(false);
+            if (existingSession != null) {
+                existingSession.invalidate();
+            }
             HttpSession session = req.getSession(true);
             session.setAttribute("loggedInUser", user);
             session.setMaxInactiveInterval(30 * 60); // 30 minutes
-            redirectToDashboard(resp, user);
-        } catch (SQLException e) {
-            try {
-                req.logout();
-            } catch (ServletException logoutError) {
-                e.addSuppressed(logoutError);
+            String redirectUrl = dashboardUrl(req, user);
+            if (wantsJson(req)) {
+                writeJson(resp, HttpServletResponse.SC_OK,
+                        "{\"redirectUrl\":\"" + redirectUrl + "\"}");
+                return;
             }
+            resp.sendRedirect(redirectUrl);
+        } catch (SQLException e) {
             throw new ServletException("Error during login", e);
         }
     }
 
-    private void redirectToDashboard(HttpServletResponse resp, User user) throws IOException {
-        String ctx = resp.encodeRedirectURL("");
-        switch (user.getRole()) {
-            case ADMIN    -> resp.sendRedirect(ctx + "admin/dashboard");
-            case DRIVER   -> resp.sendRedirect(ctx + "driver/dashboard");
-            default       -> resp.sendRedirect(ctx + "customer/dashboard");
+    private String dashboardUrl(HttpServletRequest req, User user) {
+        String ctx = req.getContextPath();
+        return switch (user.getRole()) {
+            case ADMIN -> ctx + "/admin/dashboard";
+            case DRIVER -> ctx + "/driver/dashboard";
+            default -> ctx + "/customer/dashboard";
+        };
+    }
+
+    private void handleLoginError(HttpServletRequest req, HttpServletResponse resp,
+                                  String message, int status) throws ServletException, IOException {
+        if (wantsJson(req)) {
+            writeJson(resp, status, "{\"error\":\"" + message + "\"}");
+            return;
         }
+        req.setAttribute("errorMessage", message);
+        req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+    }
+
+    private boolean wantsJson(HttpServletRequest req) {
+        String accept = req.getHeader("Accept");
+        String requestedWith = req.getHeader("X-Requested-With");
+        return (accept != null && accept.contains("application/json"))
+                || "XMLHttpRequest".equalsIgnoreCase(requestedWith);
+    }
+
+    private void writeJson(HttpServletResponse resp, int status, String payload) throws IOException {
+        resp.setStatus(status);
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+        resp.getWriter().write(payload);
     }
 }
