@@ -58,19 +58,18 @@ public class AdminReportsServlet extends HttpServlet {
 
         try {
             List<Driver> drivers = driverDAO.findAll();
-            if (driverFilter != null && drivers.stream().noneMatch(driver -> driver.getId() == driverFilter)) {
-                driverFilter = null;
-            }
-
-            List<Driver> reportDrivers = drivers;
+            Optional<Driver> selectedDriver = Optional.empty();
             if (driverFilter != null) {
-                for (Driver driver : drivers) {
-                    if (driver.getId() == driverFilter) {
-                        reportDrivers = List.of(driver);
-                        break;
-                    }
+                int driverIdValue = driverFilter;
+                selectedDriver = drivers.stream()
+                        .filter(driver -> driver.getId() == driverIdValue)
+                        .findFirst();
+                if (selectedDriver.isEmpty()) {
+                    driverFilter = null;
                 }
             }
+
+            List<Driver> reportDrivers = selectedDriver.map(List::of).orElse(drivers);
             List<Delivery> deliveries = driverFilter != null
                     ? deliveryDAO.findByDriverId(driverFilter)
                     : deliveryDAO.findAll();
@@ -94,6 +93,7 @@ public class AdminReportsServlet extends HttpServlet {
 
             for (Delivery delivery : deliveries) {
                 LocalDateTime assignedAt = delivery.getAssignedAt();
+                // endDateTime is exclusive to keep the filter inclusive of the end date.
                 if (assignedAt == null || assignedAt.isBefore(startDateTime) || !assignedAt.isBefore(endDateTime)) {
                     continue;
                 }
