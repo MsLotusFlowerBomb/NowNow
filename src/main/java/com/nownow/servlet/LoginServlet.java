@@ -1,5 +1,6 @@
 package com.nownow.servlet;
 
+import com.google.gson.Gson;
 import com.nownow.dao.UserDAO;
 import com.nownow.model.User;
 import jakarta.servlet.ServletException;
@@ -9,7 +10,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -22,6 +26,7 @@ import java.util.Optional;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
+    private static final Gson GSON = new Gson();
     private final UserDAO userDAO = new UserDAO();
 
     @Override
@@ -56,7 +61,7 @@ public class LoginServlet extends HttpServlet {
         String normalizedEmail = email.trim().toLowerCase();
         try {
             Optional<User> optUser = userDAO.findByEmail(normalizedEmail);
-            if (optUser.isEmpty() || !password.equals(optUser.get().getPassword())) {
+            if (optUser.isEmpty() || !passwordMatches(password, optUser.get().getPassword())) {
                 handleLoginError(req, resp, "Invalid email or password.", HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
@@ -70,8 +75,7 @@ public class LoginServlet extends HttpServlet {
             session.setMaxInactiveInterval(30 * 60); // 30 minutes
             String redirectUrl = dashboardUrl(req, user);
             if (wantsJson(req)) {
-                writeJson(resp, HttpServletResponse.SC_OK,
-                        "{\"redirectUrl\":\"" + redirectUrl + "\"}");
+                writeJson(resp, HttpServletResponse.SC_OK, Map.of("redirectUrl", redirectUrl));
                 return;
             }
             resp.sendRedirect(redirectUrl);
@@ -92,7 +96,7 @@ public class LoginServlet extends HttpServlet {
     private void handleLoginError(HttpServletRequest req, HttpServletResponse resp,
                                   String message, int status) throws ServletException, IOException {
         if (wantsJson(req)) {
-            writeJson(resp, status, "{\"error\":\"" + message + "\"}");
+            writeJson(resp, status, Map.of("error", message));
             return;
         }
         req.setAttribute("errorMessage", message);
@@ -106,10 +110,19 @@ public class LoginServlet extends HttpServlet {
                 || "XMLHttpRequest".equalsIgnoreCase(requestedWith);
     }
 
-    private void writeJson(HttpServletResponse resp, int status, String payload) throws IOException {
+    private void writeJson(HttpServletResponse resp, int status, Object payload) throws IOException {
         resp.setStatus(status);
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        resp.getWriter().write(payload);
+        resp.getWriter().write(GSON.toJson(payload));
+    }
+
+    private boolean passwordMatches(String rawPassword, String storedPassword) {
+        if (rawPassword == null || storedPassword == null) {
+            return false;
+        }
+        return MessageDigest.isEqual(
+                rawPassword.getBytes(StandardCharsets.UTF_8),
+                storedPassword.getBytes(StandardCharsets.UTF_8));
     }
 }
