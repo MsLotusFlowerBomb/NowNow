@@ -38,11 +38,14 @@ public class DriverReportRow {
     public void incrementActive() { activeCount++; }
 
     public void calculateSuccessRate() {
-        int completed = deliveredCount + failedCount;
+        successRate = calculateSuccessRate(deliveredCount, failedCount);
+    }
+
+    public static int calculateSuccessRate(int delivered, int failed) {
+        int completed = delivered + failed;
         if (completed == 0) {
-            successRate = 0;
-            return;
+            return 0;
         }
-        successRate = (int) Math.round((deliveredCount * 100.0) / completed);
+        return (int) Math.round((delivered * 100.0) / completed);
     }
 }

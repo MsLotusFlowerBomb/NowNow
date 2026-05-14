@@ -62,7 +62,15 @@ public class AdminReportsServlet extends HttpServlet {
                 driverFilter = null;
             }
 
-            List<Driver> reportDrivers = filterDrivers(drivers, driverFilter);
+            List<Driver> reportDrivers = drivers;
+            if (driverFilter != null) {
+                for (Driver driver : drivers) {
+                    if (driver.getId() == driverFilter) {
+                        reportDrivers = List.of(driver);
+                        break;
+                    }
+                }
+            }
             List<Delivery> deliveries = driverFilter != null
                     ? deliveryDAO.findByDriverId(driverFilter)
                     : deliveryDAO.findAll();
@@ -123,7 +131,7 @@ public class AdminReportsServlet extends HttpServlet {
             List<DriverReportRow> reportRows = new ArrayList<>(rows.values());
             reportRows.forEach(DriverReportRow::calculateSuccessRate);
 
-            int successRate = calculateSuccessRate(deliveredCount, failedCount);
+            int successRate = DriverReportRow.calculateSuccessRate(deliveredCount, failedCount);
             String revenueDisplay = NumberFormat.getCurrencyInstance(Locale.US).format(revenue);
 
             DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
@@ -167,19 +175,6 @@ public class AdminReportsServlet extends HttpServlet {
         } catch (NumberFormatException ex) {
             return null;
         }
-    }
-
-    private List<Driver> filterDrivers(List<Driver> drivers, Integer driverId) {
-        if (driverId == null) return drivers;
-        return drivers.stream()
-                .filter(driver -> driver.getId() == driverId)
-                .collect(Collectors.toList());
-    }
-
-    private int calculateSuccessRate(int delivered, int failed) {
-        int completed = delivered + failed;
-        if (completed == 0) return 0;
-        return (int) Math.round((delivered * 100.0) / completed);
     }
 
     private User requireAdmin(HttpServletRequest req, HttpServletResponse resp)
