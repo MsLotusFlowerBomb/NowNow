@@ -4,6 +4,7 @@ import com.nownow.model.Delivery;
 import com.nownow.util.DBConnection;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -84,6 +85,49 @@ public class DeliveryDAO {
 			+ "WHERE d.driver_id = ? ORDER BY d.assigned_at DESC";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setInt(1, driverId);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					list.add(mapRow(rs));
+				}
+			}
+		}
+		return list;
+	}
+
+	public List<Delivery> findByAssignedRange(LocalDateTime start, LocalDateTime end) throws SQLException {
+		List<Delivery> list = new ArrayList<>();
+		String sql = "SELECT d.*, u.full_name AS driver_name, p.tracking_number "
+			+ "FROM deliveries d "
+			+ "JOIN drivers dr ON dr.id = d.driver_id "
+			+ "JOIN users   u  ON u.id  = dr.user_id "
+			+ "JOIN packages p ON p.id  = d.package_id "
+			+ "WHERE d.assigned_at >= ? AND d.assigned_at < ? "
+			+ "ORDER BY d.assigned_at DESC";
+		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setTimestamp(1, Timestamp.valueOf(start));
+			ps.setTimestamp(2, Timestamp.valueOf(end));
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					list.add(mapRow(rs));
+				}
+			}
+		}
+		return list;
+	}
+
+	public List<Delivery> findByDriverAndAssignedRange(int driverId, LocalDateTime start, LocalDateTime end) throws SQLException {
+		List<Delivery> list = new ArrayList<>();
+		String sql = "SELECT d.*, u.full_name AS driver_name, p.tracking_number "
+			+ "FROM deliveries d "
+			+ "JOIN drivers dr ON dr.id = d.driver_id "
+			+ "JOIN users   u  ON u.id  = dr.user_id "
+			+ "JOIN packages p ON p.id  = d.package_id "
+			+ "WHERE d.driver_id = ? AND d.assigned_at >= ? AND d.assigned_at < ? "
+			+ "ORDER BY d.assigned_at DESC";
+		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, driverId);
+			ps.setTimestamp(2, Timestamp.valueOf(start));
+			ps.setTimestamp(3, Timestamp.valueOf(end));
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
 					list.add(mapRow(rs));

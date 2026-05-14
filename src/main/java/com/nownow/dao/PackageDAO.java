@@ -6,8 +6,13 @@ import com.nownow.util.DBConnection;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Data Access Object for the {@code packages} table.
@@ -92,13 +97,37 @@ public class PackageDAO {
     public List<Package> findAll() throws SQLException {
         List<Package> list = new ArrayList<>();
         String sql = "SELECT p.*, u.full_name AS sender_name FROM packages p "
-                   + "JOIN users u ON u.id = p.sender_id ORDER BY p.created_at DESC";
+                + "JOIN users u ON u.id = p.sender_id ORDER BY p.created_at DESC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(mapRow(rs));
         }
         return list;
+    }
+
+    public Map<Integer, BigDecimal> findEstimatedPricesByIds(Collection<Integer> packageIds) throws SQLException {
+        if (packageIds == null || packageIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        String placeholders = packageIds.stream()
+                .map(id -> "?")
+                .collect(Collectors.joining(","));
+        String sql = "SELECT id, estimated_price FROM packages WHERE id IN (" + placeholders + ")";
+        Map<Integer, BigDecimal> prices = new HashMap<>();
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            int index = 1;
+            for (Integer id : packageIds) {
+                ps.setInt(index++, id);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    prices.put(rs.getInt("id"), rs.getBigDecimal("estimated_price"));
+                }
+            }
+        }
+        return prices;
     }
 
     /** Returns all packages with a given status. */

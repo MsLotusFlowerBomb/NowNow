@@ -31,7 +31,7 @@
 
     <section class="form-card">
         <h2>Report Filters</h2>
-        <p class="dashboard-sub">Defaults to the current month to simplify filter selection.</p>
+        <p class="dashboard-sub">Defaults to the current month to simplify the filter selection.</p>
         <form action="${pageContext.request.contextPath}/admin/reports" method="get">
             <div class="form-row">
                 <div class="form-group">

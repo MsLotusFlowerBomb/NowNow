@@ -6,7 +6,6 @@ import com.nownow.dao.PackageDAO;
 import com.nownow.model.Delivery;
 import com.nownow.model.Driver;
 import com.nownow.model.DriverReportRow;
-import com.nownow.model.Package;
 import com.nownow.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @WebServlet("/admin/reports")
@@ -75,12 +75,14 @@ public class AdminReportsServlet extends HttpServlet {
 
             List<Driver> reportDrivers = selectedDriver.map(List::of).orElse(drivers);
 
-            List<Delivery> deliveries = loadDeliveries(driverFilter);
-            Map<Integer, Package> packagesById = loadPackages().stream()
-                    .collect(Collectors.toMap(Package::getId, pkg -> pkg));
-
             LocalDateTime startDateTime = startDate.atStartOfDay();
             LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+            List<Delivery> deliveries = loadDeliveries(driverFilter, startDateTime, endDateTime);
+            Set<Integer> deliveredPackageIds = deliveries.stream()
+                    .filter(delivery -> delivery.getStatus() == Delivery.Status.DELIVERED)
+                    .map(Delivery::getPackageId)
+                    .collect(Collectors.toSet());
+            Map<Integer, BigDecimal> estimatedPrices = loadEstimatedPrices(deliveredPackageIds);
 
             Map<Integer, DriverReportRow> rows = new LinkedHashMap<>();
             for (Driver driver : reportDrivers) {
@@ -94,12 +96,6 @@ public class AdminReportsServlet extends HttpServlet {
             BigDecimal revenue = BigDecimal.ZERO;
 
             for (Delivery delivery : deliveries) {
-                LocalDateTime assignedAt = delivery.getAssignedAt();
-                // endDateTime is exclusive to keep the filter inclusive of the end date.
-                if (assignedAt == null || assignedAt.isBefore(startDateTime) || !assignedAt.isBefore(endDateTime)) {
-                    continue;
-                }
-
                 DriverReportRow row = rows.get(delivery.getDriverId());
                 if (row == null) {
                     continue;
@@ -112,9 +108,9 @@ public class AdminReportsServlet extends HttpServlet {
                     case DELIVERED -> {
                         row.incrementDelivered();
                         deliveredCount++;
-                        Package pkg = packagesById.get(delivery.getPackageId());
-                        if (pkg != null && pkg.getEstimatedPrice() != null) {
-                            revenue = revenue.add(pkg.getEstimatedPrice());
+                        BigDecimal price = estimatedPrices.get(delivery.getPackageId());
+                        if (price != null) {
+                            revenue = revenue.add(price);
                         }
                     }
                     case FAILED -> {
@@ -170,22 +166,22 @@ public class AdminReportsServlet extends HttpServlet {
         }
     }
 
-    private List<Delivery> loadDeliveries(Integer driverFilter) throws SQLException {
+    private List<Delivery> loadDeliveries(Integer driverFilter, LocalDateTime start, LocalDateTime end) throws SQLException {
         try {
             if (driverFilter != null) {
-                return deliveryDAO.findByDriverId(driverFilter);
+                return deliveryDAO.findByDriverAndAssignedRange(driverFilter, start, end);
             }
-            return deliveryDAO.findAll();
+            return deliveryDAO.findByAssignedRange(start, end);
         } catch (SQLException e) {
             throw new SQLException("Failed to load deliveries for the report.", e);
         }
     }
 
-    private List<Package> loadPackages() throws SQLException {
+    private Map<Integer, BigDecimal> loadEstimatedPrices(Set<Integer> packageIds) throws SQLException {
         try {
-            return packageDAO.findAll();
+            return packageDAO.findEstimatedPricesByIds(packageIds);
         } catch (SQLException e) {
-            throw new SQLException("Failed to load packages for the report.", e);
+            throw new SQLException("Failed to load package pricing for the report.", e);
         }
     }
 
