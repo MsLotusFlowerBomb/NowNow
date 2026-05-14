@@ -73,15 +73,20 @@
                 }
             })
                 .then(function (response) {
-                    return response.json()
-                        .catch(function (err) {
+                    const contentType = response.headers.get('content-type') || '';
+                    const parseJson = contentType.includes('application/json')
+                        ? response.json().catch(function (err) {
                             console.warn('Login response was not JSON.', err);
                             return null;
                         })
+                        : Promise.resolve(null);
+                    return parseJson
                         .then(function (data) {
                             if (response.ok) {
                                 if (data && data.redirectUrl) {
                                     window.location.assign(data.redirectUrl);
+                                } else if (response.redirected && response.url) {
+                                    window.location.assign(response.url);
                                 } else {
                                     window.location.reload();
                                 }
