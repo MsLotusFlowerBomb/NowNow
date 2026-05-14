@@ -136,23 +136,6 @@ public class UserDAO {
         }
     }
 
-    /**
-     * Updates the password for a user (used when rehashing legacy passwords).
-     *
-     * @param userId the user id
-     * @param hashedPassword the new hashed password
-     * @throws SQLException on any database error
-     */
-    public void updatePassword(int userId, String hashedPassword) throws SQLException {
-        String sql = "UPDATE users SET password=? WHERE id=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, hashedPassword);
-            ps.setInt(2, userId);
-            ps.executeUpdate();
-        }
-    }
-
     // -------------------------------------------------------
     // PRIVATE HELPERS
     // -------------------------------------------------------

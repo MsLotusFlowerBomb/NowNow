@@ -140,8 +140,7 @@ session attribute.
 
 ## 🔒 Security
 
-- Passwords are hashed with PBKDF2 in new registrations. Legacy seed data uses
-  plain-text passwords and is rehashed on first successful login.
+- Passwords are stored as plain text for this project.
 - All SQL uses **PreparedStatement** to prevent injection
 - Role-based access control enforced in every servlet
 - Session timeout: 30 minutes
