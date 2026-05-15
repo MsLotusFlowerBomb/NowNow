@@ -35,7 +35,7 @@ public class LoginServlet extends HttpServlet {
         // If already logged in, redirect to dashboard
         HttpSession session = req.getSession(false);
         if (session != null && session.getAttribute("loggedInUser") != null) {
-            redirectToDashboard(resp, (User) session.getAttribute("loggedInUser"));
+            //redirectToDashboard(resp, (User) session.getAttribute("loggedInUser"));
             return;
         }
         req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
@@ -44,6 +44,18 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+	    // --- EMERGENCY BYPASS FOR ASSIGNMENT SCREENSHOTS ---
+	    /*com.nownow.model.User adminBypass = new com.nownow.model.User();
+	    adminBypass.setId(999);
+	    adminBypass.setFullName("Admin Bypass Mode");
+	    adminBypass.setEmail("admin@nownow.com");
+	    adminBypass.setRole(com.nownow.model.User.Role.ADMIN);
+
+	    jakarta.servlet.http.HttpSession session = req.getSession(true);
+	    session.setAttribute("loggedInUser", adminBypass);
+	    resp.sendRedirect(req.getContextPath() + "/admin/dashboard");
+	    return;*/
+	    // --- END BYPASS ---
         String email    = req.getParameter("email");
         String password = req.getParameter("password");
         if (email == null) {
