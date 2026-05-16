@@ -109,11 +109,12 @@ mvn tomcat7:run
 
 ## 🔐 Application Login (JavaScript + Servlet)
 
-Login is handled by the `/login` servlet against the `users` table. The login
-form submits to `/login`, and the page enhances the experience with JavaScript
-to submit via `fetch` and show inline errors. Container-managed realms are not
-required; role checks are enforced in the servlets using the `loggedInUser`
-session attribute.
+Login is handled by the `/login` servlet using GlassFish container authentication
+against the default `file` realm. The login form submits to `/login`, and the
+page enhances the experience with JavaScript to submit via `fetch` and show
+inline errors. After successful container authentication, the matching app user
+profile is loaded and role checks are enforced in servlets using the
+`loggedInUser` session attribute.
 
 ---
 

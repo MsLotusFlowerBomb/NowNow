@@ -10,8 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Optional;
@@ -72,9 +70,20 @@ public class LoginServlet extends HttpServlet {
 
         String normalizedEmail = email.trim().toLowerCase();
         try {
-            Optional<User> optUser = userDAO.findByEmail(normalizedEmail);
-            if (optUser.isEmpty() || !passwordMatches(password, optUser.get().getPassword())) {
+            try {
+                req.login(normalizedEmail, password);
+            } catch (ServletException authFailure) {
                 handleLoginError(req, resp, "Invalid email or password.", HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+
+            String principalName = req.getUserPrincipal() != null
+                    ? req.getUserPrincipal().getName()
+                    : normalizedEmail;
+            Optional<User> optUser = userDAO.findByEmail(principalName.trim().toLowerCase());
+            if (optUser.isEmpty()) {
+                req.logout();
+                handleLoginError(req, resp, "No application profile exists for this account.", HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
             User user = optUser.get();
@@ -127,14 +136,5 @@ public class LoginServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         resp.getWriter().write(GSON.toJson(payload));
-    }
-
-    private boolean passwordMatches(String rawPassword, String storedPassword) {
-        if (rawPassword == null || storedPassword == null) {
-            return false;
-        }
-        return MessageDigest.isEqual(
-                rawPassword.getBytes(StandardCharsets.UTF_8),
-                storedPassword.getBytes(StandardCharsets.UTF_8));
     }
 }
