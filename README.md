@@ -7,9 +7,9 @@
 ## 🏗 Architecture
 
 | Tier | Technology |
-|------|------------|
+| --- | --- |
 | **Tier 1 – Client** | HTML5, CSS3, JavaScript (vanilla) |
-| **Tier 2 – Application Server** | Java 17 Servlets + JSP on Apache Tomcat 10 |
+| **Tier 2 – Application Server** | Java 17 Servlets + JSP on GlassFish 7 (Jakarta EE 10) |
 | **Tier 3 – Database** | MySQL 8.x |
 
 ---
@@ -25,7 +25,8 @@ NowNow/
 ├── docs/
 │   ├── architecture.md                  # System architecture & deployment guide
 │   ├── database-schema.md               # Full ERD and column reference
-│   └── api-documentation.md             # HTTP endpoint reference
+│   ├── api-documentation.md             # HTTP endpoint reference
+│   └── test-cases.md                    # Formal test cases proving functionality
 ├── prototype/                           # ★ Interactive HTML prototype (no server needed)
 │   ├── index.html                       # Landing page
 │   ├── login.html                       # Login
@@ -51,8 +52,10 @@ NowNow/
         ├── css/style.css
         ├── js/app.js
         └── WEB-INF/
-            ├── web.xml                  # Servlet configuration
+            ├── web.xml                  # Servlet configuration (Security Constraints)
+            ├── glassfish-web.xml        # GlassFish realm mapping
             └── views/                   # JSP view templates
+
 ```
 
 ---
@@ -64,7 +67,7 @@ Open **`prototype/index.html`** in any browser to explore the full UI without in
 **Demo accounts (prototype login page):**
 
 | Role | Email |
-|------|-------|
+| --- | --- |
 | Customer | carol@example.com |
 | Driver | dan@nownow.com |
 | Admin | admin@nownow.com |
@@ -76,10 +79,11 @@ Open **`prototype/index.html`** in any browser to explore the full UI without in
 ## 🚀 Running the Full Application
 
 ### Prerequisites
-- Java 17+ JDK
-- Apache Maven 3.8+
-- Apache Tomcat 10
-- MySQL 8.x
+
+* Java 17+ JDK
+* Apache Maven 3.8+
+* Eclipse GlassFish 7.x
+* MySQL 8.x
 
 ### Steps
 
@@ -94,54 +98,58 @@ mysql -u root -p -e "
   GRANT ALL PRIVILEGES ON nownow_db.* TO 'nownow_user'@'localhost';
   FLUSH PRIVILEGES;"
 
-# 3. Update connection settings (if needed)
-# Edit src/main/resources/db.properties
+# 3. Update connection settings
+# Edit src/main/resources/db.properties 
+# (Change 'localhost' to your DB machine's IP for the 3-tiered presentation)
 
 # 4. Build the WAR
 mvn clean package
 
-# 5. Run with embedded Tomcat (quickest)
-mvn tomcat7:run
-# Then open: http://localhost:8080/nownow
+# 5. Deploy to GlassFish
+# - Start your GlassFish domain (e.g., `asadmin start-domain`)
+# - Open the GlassFish Admin Console (usually http://localhost:4848)
+# - Navigate to Applications -> Deploy
+# - Upload the `target/nownow.war` file and deploy.
+# - Open: http://localhost:8080/nownow
+
 ```
 
 ---
 
 ## 🔐 Application Login (JavaScript + Servlet)
 
-Login is handled by the `/login` servlet using GlassFish container authentication
-against the default `file` realm. The login form submits to `/login`, and the
-page enhances the experience with JavaScript to submit via `fetch` and show
-inline errors. After successful container authentication, the matching app user
-profile is loaded and role checks are enforced in servlets using the
-`loggedInUser` session attribute.
+Login is handled by the `/login` servlet using GlassFish container authentication against the default `file` realm. The login form submits to `/login`, and the page enhances the experience with JavaScript to submit via `fetch` and show inline errors. After successful container authentication, the matching app user profile is loaded and role checks are enforced in servlets using the `loggedInUser` session attribute.
+
+> **⚠️ CRITICAL Note for Deployment:** Because this system strictly uses GlassFish Container-Managed Security, the `ADMIN`, `DRIVER`, and `CUSTOMER` demo users **must be manually added to the GlassFish `file` realm** via the Admin Console (`Server -> Security -> Realms -> file -> Manage Users`) prior to logging in. If they are not in the keystore, GlassFish will reject the login.
 
 ---
 
 ## 📋 Key Features
 
 | Feature | Description |
-|---------|-------------|
+| --- | --- |
 | **Registration** | Customers and drivers can self-register; admin accounts are seeded |
 | **Send a Package** | Customers enter pickup/delivery addresses and recipient details |
 | **Driver Assignment** | Admins assign available drivers to pending packages |
 | **Delivery Management** | Drivers mark packages as picked up, delivered, or failed |
 | **Package Tracking** | Anyone can track a package by its unique tracking number |
 | **Role-based dashboards** | Separate views for customer, driver, and admin |
+| **Business Reports** | Exportable PDF/CSV reports with filtering for Admins |
 
 ---
 
 ## 📚 Documentation
 
-- [System Architecture](docs/architecture.md)
-- [Database Schema](docs/database-schema.md)
-- [API / Endpoint Reference](docs/api-documentation.md)
+* [System Architecture](https://www.google.com/search?q=docs/architecture.md)
+* [Database Schema](https://www.google.com/search?q=docs/database-schema.md)
+* [API / Endpoint Reference](https://www.google.com/search?q=docs/api-documentation.md)
+* [Test Cases](https://www.google.com/search?q=docs/test-cases.md)
 
 ---
 
 ## 🔒 Security
 
-- Passwords are stored as plain text for this project.
-- All SQL uses **PreparedStatement** to prevent injection
-- Role-based access control enforced in every servlet
-- Session timeout: 30 minutes
+* All SQL uses **PreparedStatement** to prevent injection
+* Role-based access control enforced in `web.xml` using `<security-constraint>` blocks
+* Programmatic role verification in servlets
+* Session timeout configured to 30 minutes
