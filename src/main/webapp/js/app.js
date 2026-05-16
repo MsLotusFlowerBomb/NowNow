@@ -52,7 +52,7 @@
     const loginForm = document.getElementById('loginForm');
     const loginError = document.getElementById('loginError');
 
-    if (loginForm) {
+    /* if (loginForm) {
         loginForm.addEventListener('submit', function (e) {
             if (!window.fetch) {
                 return;
@@ -102,6 +102,7 @@
                 });
         });
     }
+  */
 
     // ── Live price estimate on new-package form ────────────────
     const weightInput  = document.getElementById('weight');
