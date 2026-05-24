@@ -96,8 +96,8 @@ public class PackageServlet extends HttpServlet {
         pkg.setRecipientName(recipientName.trim());
         pkg.setRecipientPhone(recipientPhone != null ? recipientPhone.trim() : null);
 
-        // Estimate price: base $5 + $3.50/kg
-        BigDecimal estimated = BigDecimal.valueOf(5.0);
+        // Estimate price: base R5 + R3.50/kg
+        BigDecimal estimated = BigDecimal.valueOf(50.0);
         if (weight != null) {
             estimated = estimated.add(weight.multiply(BigDecimal.valueOf(3.50)));
         }

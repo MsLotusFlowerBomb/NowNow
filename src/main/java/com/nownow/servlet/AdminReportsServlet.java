@@ -130,7 +130,7 @@ public class AdminReportsServlet extends HttpServlet {
             reportRows.forEach(DriverReportRow::calculateSuccessRate);
 
             int successRate = DriverReportRow.calculateSuccessRate(deliveredCount, failedCount);
-            String revenueDisplay = NumberFormat.getCurrencyInstance(Locale.US).format(revenue);
+            String revenueDisplay = NumberFormat.getCurrencyInstance(new Locale("en","ZA")).format(revenue);
 
             DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
             String rangeLabel = startDate.format(displayFormatter) + " - " + endDate.format(displayFormatter);
