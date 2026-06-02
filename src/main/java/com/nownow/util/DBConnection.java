@@ -45,7 +45,6 @@ public class DBConnection {
             username = props.getProperty("db.username");
             password = props.getProperty("db.password");
 
-            // Force MySQL JDBC driver registration (required for some JVM setups)
             Class.forName("org.apache.derby.jdbc.ClientDriver");
         } catch (IOException | ClassNotFoundException e) {
             throw new ExceptionInInitializerError(e);
