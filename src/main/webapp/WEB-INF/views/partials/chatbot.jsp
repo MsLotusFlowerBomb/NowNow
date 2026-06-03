@@ -284,12 +284,20 @@
   sendBtn.addEventListener('click', sendMessage);
 
   // ── Add a message bubble ─────────────────────────────────────
-  function addBubble(text, who) {
-    var row    = document.createElement('div');
+function addBubble(text, who) {
+    var row = document.createElement('div');
     row.className = 'nn-msg nn-' + who;
     var bubble = document.createElement('div');
     bubble.className = 'nn-bubble';
-    bubble.textContent = text;
+    
+    // Simple regex to turn URLs or paths (like /login) into clickable links
+    // First, escape HTML to prevent XSS attacks
+    var safeText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    // Then wrap /login and /register in anchor tags
+    safeText = safeText.replace(/(\/login|\/register)/g, '<a href="' + ctx + '$1" style="color:inherit; text-decoration:underline;">$1</a>');
+    
+    bubble.innerHTML = safeText; // Use innerHTML now instead of textContent
+    
     row.appendChild(bubble);
     msgArea.appendChild(row);
     msgArea.scrollTop = msgArea.scrollHeight;

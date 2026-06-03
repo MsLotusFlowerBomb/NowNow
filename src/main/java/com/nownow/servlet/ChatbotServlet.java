@@ -3,6 +3,10 @@ package com.nownow.servlet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.nownow.dao.DriverDAO;
+import com.nownow.model.Driver;
+import java.util.List;
+
 import com.nownow.dao.PackageDAO;
 import com.nownow.dao.DeliveryDAO;
 import com.nownow.model.Package;
@@ -87,50 +91,100 @@ public class ChatbotServlet extends HttpServlet {
     String userMessage = incoming.has("message")
       ? incoming.get("message").getAsString().trim()
       : "";
+    // 1. Extract intents from the user's message
     String trackingNumber = extractTrackingNumber(userMessage);
+    Double weightKg = extractWeight(userMessage);
+
+    // Simple keyword check for Admin Dispatch intent
+    String lowerMsg = userMessage.toLowerCase();
+    boolean asksForDrivers = lowerMsg.contains("available driver") || 
+      lowerMsg.contains("who is available") || 
+      lowerMsg.contains("dispatch") ||
+      lowerMsg.contains("available drivers");
+
     String extraContext = "";
+    HttpSession session = req.getSession(true);
+    User user = (User) session.getAttribute("loggedInUser");
+
+    // ── ROUTER LOGIC ──────────────────────────────────────────
 
     if (trackingNumber != null) {
-      try {
-        PackageDAO packageDao = new PackageDAO();
-        Optional<Package> pkgOpt = packageDao.findByTrackingNumber(trackingNumber);
+      // INTENT 1: Tracking a package
 
-        if (pkgOpt.isPresent()) {
-          Package pkg = pkgOpt.get();
+      if (user == null) {
+        // SECURITY CHECK 1: User must be logged in
+        extraContext = "SYSTEM FACT: The user is trying to track " + trackingNumber + 
+          ", but they are NOT logged in. Politely tell them to log in at /login to view package statuses.";
+      } else {
+        try {
+          PackageDAO packageDao = new PackageDAO();
+          Optional<Package> pkgOpt = packageDao.findByTrackingNumber(trackingNumber);
 
-          // Build the core facts
-          StringBuilder facts = new StringBuilder();
-          facts.append("SYSTEM FACT: Tracking number ").append(trackingNumber)
-            .append(" is currently ").append(pkg.getStatus().name())
-            .append(". It is addressed to ").append(pkg.getRecipientName())
-            .append(" at ").append(pkg.getDeliveryAddress()).append(". ");
+          if (pkgOpt.isPresent()) {
+            Package pkg = pkgOpt.get();
 
-          // Try to get the driver information
-          DeliveryDAO deliveryDao = new DeliveryDAO();
-          Optional<Delivery> delOpt = deliveryDao.findByPackageId(pkg.getId());
-          if (delOpt.isPresent()) {
-            facts.append("The assigned driver is ").append(delOpt.get().getDriverName()).append(". ");
+            // SECURITY CHECK 2: Role & Ownership Verification
+            boolean isAdmin = "ADMIN".equals(user.getRole().name());
+            boolean isDriver = "DRIVER".equals(user.getRole().name());
+            boolean isSender = (pkg.getSenderId() == user.getId());
+
+            if (!isAdmin && !isDriver && !isSender) {
+              // They are logged in, but trying to snoop on someone else's package!
+              extraContext = "SYSTEM FACT: The package exists, but it belongs to another account. " +
+                "Tell the user they are not authorized to view this tracking number.";
+            } else {
+              // Authorized! Build the facts.
+              StringBuilder facts = new StringBuilder();
+              facts.append("SYSTEM FACT: Tracking number ").append(trackingNumber)
+                .append(" is currently ").append(pkg.getStatus().name())
+                .append(". It is addressed to ").append(pkg.getRecipientName())
+                .append(" at ").append(pkg.getDeliveryAddress()).append(". ");
+
+              DeliveryDAO deliveryDao = new DeliveryDAO();
+              Optional<Delivery> delOpt = deliveryDao.findByPackageId(pkg.getId());
+              if (delOpt.isPresent()) {
+                facts.append("The assigned driver is ").append(delOpt.get().getDriverName()).append(". ");
+              }
+              extraContext = facts.toString();
+            }
+          } else {
+            extraContext = "SYSTEM FACT: The tracking number " + trackingNumber + " does NOT exist in the database.";
           }
+        } catch (SQLException e) {
+          extraContext = "SYSTEM FACT: Database unavailable.";
+        }
+      }
 
-          extraContext = facts.toString();
+    } else if (asksForDrivers && user != null && "ADMIN".equals(user.getRole().name())) {
+      // INTENT 2: Admin Dispatch (Only works if user is an ADMIN)
+      try {
+        DriverDAO driverDao = new DriverDAO();
+        List<Driver> availableDrivers = driverDao.findAvailable(); // Uses your existing method!
+
+        if (availableDrivers.isEmpty()) {
+          extraContext = "SYSTEM FACT: There are currently NO available drivers.";
         } else {
-          extraContext = "SYSTEM FACT: The tracking number " + trackingNumber + " does NOT exist in the database. Inform the user respectfully.";
+          StringBuilder drvStr = new StringBuilder("SYSTEM FACT: The following drivers are currently AVAILABLE:\n");
+          for (Driver d : availableDrivers) {
+            drvStr.append("- ").append(d.getDriverFullName())
+              .append(" (").append(d.getVehicleType().name())
+              .append(", Rating: ").append(d.getRating()).append(")\n");
+          }
+          extraContext = drvStr.toString();
         }
       } catch (SQLException e) {
-        e.printStackTrace();
-        extraContext = "SYSTEM FACT: The database is temporarily unavailable. Tell the user to try again later.";
+        extraContext = "SYSTEM FACT: Database unavailable to fetch drivers.";
       }
+
+    } else if (weightKg != null) {
+      // INTENT 3: Shipping Estimator
+      extraContext = "SYSTEM FACT: The user wants a shipping estimate for a " + weightKg + "kg package. " +
+        "Rule: Shipping costs a base fee of R50, plus R15 per kilogram. " +
+        "Do the math yourself and give them the exact estimated total in ZAR (R). Explain the breakdown briefly.";
     }
 
-    if (userMessage.isEmpty()) {
-      writeJson(resp, 400, Map.of("error", "Message cannot be empty."));
-      return;
-    }
-
-    // 3. Load history from session (replaces ChatStorage for the web app) ──
-    HttpSession session = req.getSession(true);
+    // 3. Load history from session and proceed with the API call...
     JsonArray history = loadHistory(session);
-
     // 4. Append user message ───────────────────────────────────────
     JsonObject userMsg = new JsonObject();
     userMsg.addProperty("role",    "user");
@@ -184,6 +238,24 @@ public class ChatbotServlet extends HttpServlet {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────
+
+  /**
+   * Extracts a weight in kg (e.g., "3kg", "2.5 kg") from user text.
+   */
+  private Double extractWeight(String text) {
+    if (text == null) return null;
+    // Looks for a number (with optional decimals) followed by "kg"
+    Pattern pattern = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*kg", Pattern.CASE_INSENSITIVE);
+    Matcher matcher = pattern.matcher(text);
+    if (matcher.find()) {
+      try {
+        return Double.parseDouble(matcher.group(1));
+      } catch (NumberFormatException e) {
+        return null;
+      }
+    }
+    return null;
+  }
 
   /**
    * Prepends a system message then appends the full history.
