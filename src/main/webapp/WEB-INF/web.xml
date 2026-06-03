@@ -4,7 +4,10 @@
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
 	<display-name>NowNow Courier Delivery System</display-name>
-
+  <context-param>
+      <param-name>API_KEY</param-name>
+      <param-value></param-value>
+  </context-param>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

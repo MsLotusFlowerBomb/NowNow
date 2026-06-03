@@ -89,3 +89,4 @@
         color: #fff;
     }
 </style>
+<%@ include file="/WEB-INF/views/partials/chatbot.jsp" %>
