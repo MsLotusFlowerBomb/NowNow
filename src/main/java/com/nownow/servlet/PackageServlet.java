@@ -70,7 +70,10 @@ public class PackageServlet extends HttpServlet {
         String deliveryAddress  = req.getParameter("deliveryAddress");
         String recipientName    = req.getParameter("recipientName");
         String recipientPhone   = req.getParameter("recipientPhone");
-
+  
+        String isInstantStr     = req.getParameter("isInstant");
+        boolean isInstant       = "true".equals(isInstantStr) || "on".equals(isInstantStr);
+        
         // --- Basic validation ---
         if (isEmpty(pickupAddress) || isEmpty(deliveryAddress) || isEmpty(recipientName)) {
             req.setAttribute("errorMessage",
@@ -95,22 +98,52 @@ public class PackageServlet extends HttpServlet {
         pkg.setDeliveryAddress(deliveryAddress.trim());
         pkg.setRecipientName(recipientName.trim());
         pkg.setRecipientPhone(recipientPhone != null ? recipientPhone.trim() : null);
+        pkg.setInstant(isInstant);
 
         // Estimate price: base R5 + R3.50/kg
         BigDecimal estimated = BigDecimal.valueOf(50.0);
         if (weight != null) {
             estimated = estimated.add(weight.multiply(BigDecimal.valueOf(3.50)));
         }
+        if(isInstant){
+          estimated = estimated.add(BigDecimal.valueOf(50.00));
+        }
         pkg.setEstimatedPrice(estimated);
 
         try {
-            int pkgId = packageDAO.create(pkg);
+              int pkgId = packageDAO.create(pkg);
 
-            // Log the initial tracking event
-            TrackingEvent event = new TrackingEvent(pkgId, "PENDING",
-                    "Package registered and awaiting driver assignment.");
-            trackingEventDAO.create(event);
+            // --- INSTANT DELIVERY LOGIC ---
+            com.nownow.dao.DriverDAO driverDAO = new com.nownow.dao.DriverDAO();
+            com.nownow.dao.DeliveryDAO deliveryDAO = new com.nownow.dao.DeliveryDAO();
+            
+            // Check for available drivers
+            java.util.List<com.nownow.model.Driver> availableDrivers = driverDAO.findAvailable();
 
+            if (!availableDrivers.isEmpty()) {
+                // Pick the first available driver
+                com.nownow.model.Driver assignedDriver = availableDrivers.get(0);
+
+                // 1. Update package status to ASSIGNED
+                packageDAO.updateStatus(pkgId, Package.Status.ASSIGNED);
+
+                // 2. Create the Delivery record
+                com.nownow.model.Delivery delivery = new com.nownow.model.Delivery();
+                delivery.setPackageId(pkgId);
+                delivery.setDriverId(assignedDriver.getId());
+                deliveryDAO.create(delivery);
+
+                // 3. Mark the driver as ON_DELIVERY
+                driverDAO.updateAvailability(assignedDriver.getId(), com.nownow.model.Driver.Availability.ON_DELIVERY);
+
+                // 4. Log the auto-assignment tracking event
+                trackingEventDAO.create(new TrackingEvent(pkgId, "ASSIGNED",
+                        "Instant Delivery: Package auto-assigned to " + assignedDriver.getDriverFullName() + "."));
+            } else {
+                // Fallback: If no drivers are online, leave it as PENDING for manual admin assignment
+                trackingEventDAO.create(new TrackingEvent(pkgId, "PENDING",
+                        "Package registered and awaiting driver assignment."));
+            } 
             resp.sendRedirect(req.getContextPath()
                     + "/customer/packages?created=" + pkg.getTrackingNumber());
 

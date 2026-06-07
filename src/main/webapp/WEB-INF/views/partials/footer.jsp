@@ -3,7 +3,7 @@
     <div class="footer-content">
 
         <div class="footer-brand">
-            <span class="brand-icon">🚀</span> NowNow Courier
+            NowNow Courier
             <p>Fast, reliable same-day package delivery.</p>
             <!-- Social media links -->
             <div class="footer-social">
@@ -56,13 +56,13 @@
         <div class="footer-links">
             <h4>Contact</h4>
             <a href="mailto:support@nownow.com">support@nownow.com</a>
-            <a href="tel:+27110001111">+27 11 000 1111</a>
+            <a href="tel:+0159624013">0159624013</a>
             <a href="https://www.google.com/maps" target="_blank" rel="noopener">Find Us</a>
         </div>
 
     </div>
     <div class="footer-bottom">
-        <p>&copy; 2024 NowNow Courier &mdash; University Computer Science Project</p>
+        <p>&copy; 2026 NowNow Courier &mdash;</p>
     </div>
 </footer>
 

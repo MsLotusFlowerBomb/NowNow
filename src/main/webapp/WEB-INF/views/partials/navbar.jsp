@@ -2,7 +2,7 @@
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <nav class="navbar">
     <a href="${pageContext.request.contextPath}/" class="nav-brand">
-        <span class="brand-icon">🚀</span> NowNow
+       NowNow
     </a>
     <div class="nav-links">
         <a href="${pageContext.request.contextPath}/track">Track Package</a>

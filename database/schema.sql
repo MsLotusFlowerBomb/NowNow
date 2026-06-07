@@ -122,3 +122,4 @@ CREATE PROCEDURE CompleteDelivery(IN p_del_id INT, IN p_pkg_id INT, IN p_driver_
     LANGUAGE JAVA
     MODIFIES SQL DATA
     EXTERNAL NAME 'com.nownow.DeliveryProcedures.completeDelivery';
+ALTER TABLE packages ADD COLUMN is_instant BOOLEAN DEFAULT FALSE;

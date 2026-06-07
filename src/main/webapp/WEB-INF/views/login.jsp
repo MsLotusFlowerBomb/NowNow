@@ -14,7 +14,7 @@
 <main class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
-            <h1>🚀 Welcome Back</h1>
+            <h1>Welcome Back</h1>
             <p>Sign in to your NowNow account</p>
         </div>
 

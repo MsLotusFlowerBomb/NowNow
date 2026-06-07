@@ -14,7 +14,7 @@
 <main class="auth-container">
     <div class="auth-card auth-card-wide">
         <div class="auth-header">
-            <h1>🚀 Create Account</h1>
+            <h1> Create Account</h1>
             <p>Join NowNow to start sending and tracking packages</p>
         </div>
 
@@ -63,7 +63,6 @@
                     <label class="role-option">
                         <input type="radio" name="role" value="CUSTOMER" checked>
                         <span class="role-card">
-                            <span class="role-icon">📦</span>
                             <span class="role-name">Customer</span>
                             <span class="role-desc">Send &amp; track packages</span>
                         </span>
@@ -71,7 +70,6 @@
                     <label class="role-option">
                         <input type="radio" name="role" value="DRIVER" id="driverRadio">
                         <span class="role-card">
-                            <span class="role-icon">🏍️</span>
                             <span class="role-name">Driver</span>
                             <span class="role-desc">Deliver packages &amp; earn</span>
                         </span>

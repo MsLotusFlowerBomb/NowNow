@@ -26,10 +26,13 @@ public class Package {
     private BigDecimal estimatedPrice;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean instant;
 
     public Package() {}
 
     // ---- Getters ----
+
+    public boolean instant(){ return instant;}
 
     public int getId()                        { return id; }
     public String getTrackingNumber()         { return trackingNumber; }
@@ -58,11 +61,25 @@ public class Package {
     public void setDeliveryAddress(String deliveryAddress) { this.deliveryAddress = deliveryAddress; }
     public void setRecipientName(String recipientName)     { this.recipientName = recipientName; }
     public void setRecipientPhone(String recipientPhone)   { this.recipientPhone = recipientPhone; }
+    public void setInstant(boolean instant)
+    { 
+	    this.instant = instant;
+    }
+
     public void setStatus(Status status)                   { this.status = status; }
     public void setEstimatedPrice(BigDecimal estimatedPrice){ this.estimatedPrice = estimatedPrice; }
     public void setCreatedAt(LocalDateTime createdAt)      { this.createdAt = createdAt; }
     public void setUpdatedAt(LocalDateTime updatedAt)      { this.updatedAt = updatedAt; }
 
+    public String getFormattedDate(){
+      if(this.createdAt == null){
+        return "-";
+      }
+      else {
+        return String.valueOf(this.createdAt.format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")));
+      }
+    }
+    
     @Override
     public String toString() {
         return "Package{id=" + id + ", trackingNumber='" + trackingNumber

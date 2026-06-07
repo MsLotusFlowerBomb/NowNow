@@ -14,7 +14,7 @@
 <main class="page-main">
     <div class="dashboard-header">
         <div>
-            <h1>🏍️ Driver Dashboard</h1>
+            <h1>Driver Dashboard</h1>
             <p>Welcome, <strong>${sessionScope.loggedInUser.fullName}</strong> &mdash;
                <span class="status-badge status-${driver.availabilityStatus.name().toLowerCase()}">
                    ${driver.availabilityStatus}

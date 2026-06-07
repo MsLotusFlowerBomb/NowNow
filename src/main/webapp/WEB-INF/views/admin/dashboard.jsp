@@ -109,7 +109,7 @@
                     ${pkg.status}
                   </span>
                 </td>
-                <td><fmt:formatDate value="${pkg.createdAt}" pattern="dd MMM yyyy"/></td>
+                <td>${pkg.formattedDate}</td>
                 <td>
                   <a href="${pageContext.request.contextPath}/track?number=${pkg.trackingNumber}"
                      class="btn btn-sm">Track</a>

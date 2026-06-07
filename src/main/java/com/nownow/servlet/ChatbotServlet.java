@@ -192,13 +192,11 @@ public class ChatbotServlet extends HttpServlet {
     history.add(userMsg);
     history = trim(history, MAX_HISTORY);
 
-    // 5. Build Groq request body (same structure as your Chatbot.java) ──
     JsonObject root = new JsonObject();
     root.addProperty("model",       MODEL);
     root.addProperty("temperature", 1);
     root.add("messages",            buildMessages(req, history,extraContext));
 
-    // 6. Call Groq API ─────────────────────────────────────────────
     try {
       HttpRequest apiReq = HttpRequest.newBuilder()
         .uri(URI.create(API_URL))
@@ -212,15 +210,45 @@ public class ChatbotServlet extends HttpServlet {
           HttpResponse.BodyHandlers.ofString());
 
       if (apiResp.statusCode() == 200) {
-        // Same parsing logic as your parseChatbotResponse()
         String botResponse = parseChatbotResponse(apiResp.body());
 
+        // Look for the secret tag like [ACTION:CANCEL:NN-20240001]
+        Matcher actionMatcher = Pattern.compile("\\[ACTION:CANCEL:([A-Z0-9\\-]+)\\]", Pattern.CASE_INSENSITIVE).matcher(botResponse);
+
+        if (actionMatcher.find()) {
+          String trackingToCancel = actionMatcher.group(1).toUpperCase();
+
+          try {
+            PackageDAO pDao = new PackageDAO();
+            Optional<Package> pOpt = pDao.findByTrackingNumber(trackingToCancel);
+
+            if (pOpt.isPresent()) {
+              Package pToCancel = pOpt.get();
+
+              boolean isAdmin = user != null && "ADMIN".equals(user.getRole().name());
+              boolean isSender = user != null && pToCancel.getSenderId() == user.getId();
+
+              if (isAdmin || isSender) {
+                pDao.updateStatus(pToCancel.getId(), Package.Status.CANCELLED);
+
+                botResponse = botResponse.replace(actionMatcher.group(0), "").trim();
+
+                botResponse += "\n\n*(System Note: Package " + trackingToCancel + " has been successfully marked as CANCELLED in the database).*";
+              } else {
+                botResponse = "I'm sorry, but you do not have permission to cancel that package.";
+              }
+            }
+          } catch (SQLException e) {
+            botResponse = "I tried to cancel it, but the database is currently unavailable.";
+          }
+        }
+        // ───────────────────────────────────────────────────────
+
         JsonObject botMsg = new JsonObject();
-        botMsg.addProperty("role",    "assistant");
+        botMsg.addProperty("role", "assistant");
         botMsg.addProperty("content", botResponse);
         history.add(botMsg);
 
-        // Save updated history back to session
         session.setAttribute(HIST_KEY, history.toString());
 
         writeJson(resp, 200, Map.of("reply", botResponse));
@@ -295,6 +323,7 @@ public class ChatbotServlet extends HttpServlet {
     }
 
     sb.append("Always be friendly and professional. Do not invent tracking data. ");
+    sb.append("If an ADMIN or the SENDER explicitly asks you to cancel a specific package, you MUST include this exact tag somewhere in your response: [ACTION:CANCEL:TRACKING_NUMBER]. For example: [ACTION:CANCEL:NN-20240001]. ");
 
     // This is where the magic happens: injecting the DB data!
     if (extraContext != null && !extraContext.isEmpty()) {

@@ -88,7 +88,7 @@ public class RegisterServlet extends HttpServlet {
             if (role == User.Role.DRIVER) {
                 Driver driver = new Driver();
                 driver.setUserId(userId);
-                driver.setAvailabilityStatus(Driver.Availability.OFFLINE);
+                driver.setAvailabilityStatus(Driver.Availability.AVAILABLE);
                 if (vehicle != null && !vehicle.isBlank()) {
                     try {
                         driver.setVehicleType(Driver.VehicleType.valueOf(vehicle.toUpperCase()));

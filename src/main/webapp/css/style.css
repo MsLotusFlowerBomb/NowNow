@@ -70,10 +70,6 @@ img { max-width: 100%; display: block; }
     text-decoration: none;
 }
 
-.nav-brand:hover { text-decoration: none; }
-
-.brand-icon { font-size: 1.6rem; }
-
 .nav-links {
     display: flex;
     align-items: center;
@@ -366,7 +362,6 @@ img { max-width: 100%; display: block; }
     background: rgba(255, 107, 53, 0.05);
 }
 
-.role-icon { font-size: 2rem; margin-bottom: 0.3rem; }
 .role-name { font-weight: 700; font-size: 1rem; }
 .role-desc { font-size: 0.8rem; color: var(--color-text-muted); }
 

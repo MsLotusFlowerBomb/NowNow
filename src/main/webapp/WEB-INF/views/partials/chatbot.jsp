@@ -283,24 +283,34 @@
   });
   sendBtn.addEventListener('click', sendMessage);
 
-  // ── Add a message bubble ─────────────────────────────────────
-function addBubble(text, who) {
+// ── Add a message bubble ─────────────────────────────────────
+  function addBubble(text, who) {
     var row = document.createElement('div');
     row.className = 'nn-msg nn-' + who;
     var bubble = document.createElement('div');
     bubble.className = 'nn-bubble';
     
-    // Simple regex to turn URLs or paths (like /login) into clickable links
-    // First, escape HTML to prevent XSS attacks
+    // 1. Escape HTML to prevent XSS attacks (security first)
     var safeText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    // Then wrap /login and /register in anchor tags
-    safeText = safeText.replace(/(\/login|\/register)/g, '<a href="' + ctx + '$1" style="color:inherit; text-decoration:underline;">$1</a>');
     
-    bubble.innerHTML = safeText; // Use innerHTML now instead of textContent
+    // 2. Parse Markdown Bold (**text** becomes <strong>text</strong>)
+    safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // 3. Parse Markdown Italics (*text* or _text_ becomes <em>text</em>)
+    safeText = safeText.replace(/(?:^|[^\w])(?:[*_])(.*?)(?:[*_])(?:$|[^\w])/g, ' <em>$1</em> ');
+    
+    // 4. Parse your custom /login and /register links
+    safeText = safeText.replace(/(\/login|\/register)/g, '<a href="' + ctx + '$1" style="color:inherit; text-decoration:underline; font-weight:bold;">$1</a>');
+    
+    // Inject the formatted HTML into the bubble
+    bubble.innerHTML = safeText; 
     
     row.appendChild(bubble);
     msgArea.appendChild(row);
+    
+    // Auto-scroll to the bottom
     msgArea.scrollTop = msgArea.scrollHeight;
+    
     return row;
   }
 

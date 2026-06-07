@@ -12,7 +12,7 @@
 		<main class="auth-container">
 			<div class="auth-card">
 				<div class="auth-header">
-					<h1>🚀 Welcome Back</h1>
+					<h1>Welcome Back</h1>
 					<p>Sign in to your NowNow account</p>
 				</div>
 				<div id="loginError" class="alert alert-error">Invalid email or password. Please try again.</div>

@@ -26,7 +26,7 @@ public class PackageDAO {
   public int create(Package pkg) throws SQLException {
     String sql = "INSERT INTO packages (tracking_number, sender_id, description, weight_kg, "
       + "pickup_address, delivery_address, recipient_name, recipient_phone, "
-      + "status, estimated_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      + "status, estimated_price, is_instant) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     try (Connection conn = DBConnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
       ps.setString(1, pkg.getTrackingNumber());
@@ -39,6 +39,8 @@ public class PackageDAO {
       ps.setString(8, pkg.getRecipientPhone());
       ps.setString(9, Package.Status.PENDING.name());
       setBigDecimal(ps, 10, pkg.getEstimatedPrice());
+
+      ps.setBoolean(11,pkg.instant());
       ps.executeUpdate();
       try (ResultSet keys = ps.getGeneratedKeys()) {
         if (keys.next()) return keys.getInt(1);
@@ -225,6 +227,9 @@ public class PackageDAO {
     p.setRecipientPhone(rs.getString("recipient_phone"));
     p.setStatus(Package.Status.valueOf(rs.getString("status")));
     p.setEstimatedPrice(rs.getBigDecimal("estimated_price"));
+
+    p.setInstant(rs.getBoolean("is_instant"));
+
     Timestamp created = rs.getTimestamp("created_at");
     if (created != null) p.setCreatedAt(created.toLocalDateTime());
     Timestamp updated = rs.getTimestamp("updated_at");

@@ -12,7 +12,7 @@
 <%@ include file="/WEB-INF/views/partials/navbar.jsp" %>
 
 <main class="page-main">
-    <h1 class="page-title">📍 Track Your Package</h1>
+    <h1 class="page-title">Track Your Package</h1>
 
     <form action="${pageContext.request.contextPath}/track" method="get" class="track-form">
         <div class="track-input-group">
@@ -50,7 +50,7 @@
                 </div>
                 <div class="address-arrow">→</div>
                 <div class="address-item">
-                    <span class="address-label">🏠 To</span>
+                    <span class="address-label"> To</span>
                     <span>${pkg.deliveryAddress}</span>
                 </div>
             </div>
