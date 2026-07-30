@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Dashboard – NowNow</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="index.html" class="nav-brand"><span class="brand-icon">🚀</span> NowNow</a>
+    <div class="nav-links">
+        <a href="track.html">Track Package</a>
+        <a href="driver-dashboard.html">Dashboard</a>
+        <span class="nav-user">👤 Dan Deliverer</span>
+        <a href="login.html" class="btn btn-sm">Logout</a>
+    </div>
+</nav>
+
+<main class="page-main">
+    <div class="dashboard-header">
+        <div>
+            <h1>🏍️ Driver Dashboard</h1>
+            <p>Welcome, <strong>Dan Deliverer</strong> &mdash;
+               <span class="status-badge status-available">AVAILABLE</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Driver stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <span class="stat-card-number">127</span>
+            <span class="stat-card-label">Total Deliveries</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-card-number">4.85 ★</span>
+            <span class="stat-card-label">Rating</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-card-number">MOTORBIKE</span>
+            <span class="stat-card-label">Vehicle</span>
+        </div>
+    </div>
+
+    <!-- Active deliveries -->
+    <section class="table-section">
+        <h2>My Deliveries</h2>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tracking #</th>
+                        <th>Status</th>
+                        <th>Assigned</th>
+                        <th>Picked Up</th>
+                        <th>Delivered</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>NN-20240002</code></td>
+                        <td><span class="status-badge status-in_transit">IN TRANSIT</span></td>
+                        <td>12 Mar 09:00</td>
+                        <td>12 Mar 09:55</td>
+                        <td>–</td>
+                        <td class="action-cell">
+                            <button class="btn btn-sm btn-primary"
+                                    onclick="markDelivered(this, 'NN-20240002')">Mark Delivered</button>
+                            <button class="btn btn-sm btn-danger"
+                                    onclick="markFailed(this)">Report Failed</button>
+                            <a href="track.html?number=NN-20240002" class="btn btn-sm">View Tracking</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>NN-20240001</code></td>
+                        <td><span class="status-badge status-delivered">DELIVERED</span></td>
+                        <td>09 Mar 09:10</td>
+                        <td>10 Mar 09:48</td>
+                        <td>10 Mar 14:32</td>
+                        <td class="action-cell">
+                            <a href="track.html?number=NN-20240001" class="btn btn-sm">View Tracking</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-brand">
+            <span class="brand-icon">🚀</span> NowNow Courier
+            <p>Fast, reliable same-day package delivery.</p>
+        </div>
+        <div class="footer-links">
+            <h4>Platform</h4>
+            <a href="index.html">Home</a>
+            <a href="track.html">Track Package</a>
+            <a href="register.html">Sign Up</a>
+        </div>
+        <div class="footer-links">
+            <h4>Project</h4>
+            <a href="#">Documentation</a>
+            <a href="#">GitHub</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2024 NowNow Courier &mdash; University Computer Science Project</p>
+    </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script>
+    function markDelivered(btn, tracking) {
+        var row = btn.closest('tr');
+        row.querySelector('.status-badge').className   = 'status-badge status-delivered';
+        row.querySelector('.status-badge').textContent = 'DELIVERED';
+        var now = new Date();
+        var ts  = now.getDate() + ' ' + now.toLocaleString('en', {month:'short'}) + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+        row.cells[4].textContent = ts;
+        btn.closest('.action-cell').innerHTML = '<a href="track.html?number=' + tracking + '" class="btn btn-sm">View Tracking</a>';
+    }
+
+    function markFailed(btn) {
+        if (!confirm('Mark this delivery as FAILED? This cannot be undone.')) return;
+        var row = btn.closest('tr');
+        row.querySelector('.status-badge').className   = 'status-badge status-failed';
+        row.querySelector('.status-badge').textContent = 'FAILED';
+        btn.closest('.action-cell').innerHTML = '';
+    }
+</script>
+</body>
+</html>
